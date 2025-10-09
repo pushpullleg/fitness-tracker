@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fittober - Team Fitness Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .chart-container canvas {
+            border-radius: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .refresh-indicator.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏃‍♂️ Fittober</h1>
+            <p>Team Fitness Activity Tracker</p>
+        </div>
+
+        <div class="dashboard">
+            <div id="loading" class="loading">
+                <h3>Loading team activities...</h3>
+                <p>Fetching data from the backend...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;">
+                <h3>Error Loading Data</h3>
+                <p id="error-message"></p>
+                <button onclick="loadData()" style="margin-top: 10px; padding: 8px 16px; background: #c62828; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Retry
+                </button>
+            </div>
+
+            <div id="dashboard-content" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Team Minutes</h3>
+                        <div class="number" id="total-minutes">0</div>
+                        <div class="label">minutes of fitness</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Members</h3>
+                        <div class="number" id="active-members">0</div>
+                        <div class="label">team members</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+
+                <div class="last-updated">
+                    Last updated: <span id="last-updated">Never</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="refresh-indicator" id="refresh-indicator">
+        🔄 Refreshing data...
+    </div>
+
+    <script>
+        let chart = null;
+        const API_BASE_URL = window.location.origin.includes('github.io') 
+            ? 'https://your-backend-url.herokuapp.com'  // Replace with your actual backend URL
+            : 'http://localhost:3000';
+
+        // Color palette for charts
+        const colors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+            '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56'
+        ];
+
+        async function loadData() {
+            try {
+                showLoading(true);
+                hideError();
+
+                const response = await fetch(`${API_BASE_URL}/aggregates.json`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data || !data.members) {
+                    throw new Error('Invalid data format received from server');
+                }
+
+                updateDashboard(data);
+                showRefreshIndicator();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateDashboard(data) {
+            // Update statistics
+            document.getElementById('total-minutes').textContent = data.total_min || 0;
+            document.getElementById('active-members').textContent = data.members.length;
+            document.getElementById('last-updated').textContent = new Date().toLocaleString();
+
+            // Prepare chart data
+            const labels = data.members.map(member => member.name);
+            const values = data.members.map(member => member.total_min);
+            const backgroundColors = colors.slice(0, labels.length);
+
+            // Destroy existing chart if it exists
+            if (chart) {
+                chart.destroy();
+            }
+
+            // Create new chart
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: backgroundColors.map(color => color),
+                        borderWidth: 2,
+                        hoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const member = data.members[context.dataIndex];
+                                    const percentage = ((member.total_min / data.total_min) * 100).toFixed(1);
+                                    return `${member.name}: ${member.total_min} minutes (${percentage}%)`;
+                                }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1000
+                    }
+                }
+            });
+
+            // Show dashboard content
+            document.getElementById('dashboard-content').style.display = 'block';
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error').style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        function showRefreshIndicator() {
+            const indicator = document.getElementById('refresh-indicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadData);
+
+        // Auto-refresh every 60 seconds
+        setInterval(loadData, 60000);
+
+        // Handle visibility change to refresh when tab becomes active
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                loadData();
+            }
+        });
+    </script>
+</body>
+</html>
