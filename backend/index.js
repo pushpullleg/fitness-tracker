@@ -213,6 +213,60 @@ app.get('/aggregates.json', async (req, res) => {
   }
 });
 
+// Add /api prefix routes for Vercel serverless compatibility
+app.get('/api', (req, res) => {
+  res.json({
+    message: '🏃‍♂️ Fittober Fitness Tracker API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      aggregates: '/api/aggregates.json'
+    },
+    status: 'running'
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    gists: GIST_URLS.length
+  });
+});
+
+app.get('/api/aggregates.json', async (req, res) => {
+  try {
+    const memberTotalsQuery = `
+      SELECT member as name, SUM(duration_min) as total_min 
+      FROM activities 
+      GROUP BY member 
+      ORDER BY total_min DESC
+    `;
+    
+    const memberTotals = await pool.query(memberTotalsQuery);
+
+    const overallTotalQuery = `
+      SELECT SUM(duration_min) as total_min 
+      FROM activities
+    `;
+    
+    const overallTotal = await pool.query(overallTotalQuery);
+
+    res.json({
+      members: memberTotals.rows,
+      total_min: overallTotal.rows[0].total_min || 0,
+      last_updated: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error fetching aggregates:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: error.message 
+    });
+  }
+});
+
 // Start polling in background if not in serverless environment
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   // Start polling every 60 seconds (only for local development)
