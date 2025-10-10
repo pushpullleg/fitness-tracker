@@ -143,11 +143,30 @@ async function pollAllGists() {
   console.log('Polling cycle completed');
 }
 
-// Start polling every 60 seconds
-setInterval(pollAllGists, 60000);
+// CORS middleware (must be before routes)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
-// Initial poll
-pollAllGists();
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    message: '🏃‍♂️ Fittober Fitness Tracker API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      aggregates: '/aggregates.json'
+    },
+    status: 'running'
+  });
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -194,34 +213,38 @@ app.get('/aggregates.json', async (req, res) => {
   }
 });
 
-// CORS middleware for frontend
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
-
-// Serve static files if running locally
-if (process.env.NODE_ENV !== 'production') {
-  app.use(express.static('public'));
+// Start polling in background if not in serverless environment
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  // Start polling every 60 seconds (only for local development)
+  setInterval(pollAllGists, 60000);
+  
+  // Initial poll
+  pollAllGists();
+  
+  console.log('📡 Started polling GitHub Gists every 60 seconds');
 }
 
-// Start server
-app.listen(port, () => {
-  console.log(`🚀 Fittober Tracker server running on port ${port}`);
-  console.log(`📊 Aggregates available at: http://localhost:${port}/aggregates.json`);
-  console.log(`❤️  Health check at: http://localhost:${port}/health`);
-});
+// For Vercel serverless: Export the Express app
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // For local development: Start server
+  app.listen(port, () => {
+    console.log(`🚀 Fittober Tracker server running on port ${port}`);
+    console.log(`📊 Aggregates available at: http://localhost:${port}/aggregates.json`);
+    console.log(`❤️  Health check at: http://localhost:${port}/health`);
+  });
 
-// Graceful shutdown
-process.on('SIGINT', () => {
-  console.log('Shutting down gracefully...');
-  pool.end();
-  process.exit(0);
-});
+  // Graceful shutdown
+  process.on('SIGINT', () => {
+    console.log('Shutting down gracefully...');
+    pool.end();
+    process.exit(0);
+  });
 
-process.on('SIGTERM', () => {
-  console.log('Shutting down gracefully...');
-  pool.end();
-  process.exit(0);
-});
+  process.on('SIGTERM', () => {
+    console.log('Shutting down gracefully...');
+    pool.end();
+    process.exit(0);
+  });
+}
