@@ -203,11 +203,9 @@
 
     <script>
         let chart = null;
-        const API_BASE_URL = 'https://localhost:3001';
-        //window.location.origin.includes('github.io') 
-        //    ? 'https://your-backend-url.herokuapp.com'  // Replace with your actual backend URL
-        //    : 'http://localhost:3000';
-
+        const API_BASE_URL = window.location.origin.includes('github.io') 
+            ? 'https://fitness-tracker-xyz.vercel.app'  // Your actual Vercel URL
+            : 'http://localhost:3001';
         // Color palette for charts
         const colors = [
             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
