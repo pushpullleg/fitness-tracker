@@ -77,7 +77,7 @@ async function processGistLogs(gistUrl) {
         console.log(`Skipping invalid log:`, { logId, member, activity, duration });
         continue;
       }
-
+      
       // Insert into database with conflict resolution
       const insertQuery = `
         INSERT INTO activities (
@@ -86,7 +86,7 @@ async function processGistLogs(gistUrl) {
         ON CONFLICT (log_id, source_gist) DO NOTHING
         RETURNING uid
       `;
-
+      
       const result = await pool.query(insertQuery, [
         logId.toString(),
         member,
