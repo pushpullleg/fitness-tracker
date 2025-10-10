@@ -7,9 +7,15 @@ const twilio = require('twilio');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Database connection
+// Database connection with error handling
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+});
+
+// Handle pool errors to prevent crashes
+pool.on('error', (err, client) => {
+  console.error('Unexpected database error:', err.message);
+  console.log('Database connection will be retried on next request');
 });
 
 // Twilio client
