@@ -1,0 +1,52 @@
+name: Auto Refresh Fitness Data
+
+# This GitHub Action automatically fetches new fitness data every hour
+# It calls the /api/refresh endpoint which:
+# - Fetches data from all 4 GitHub Gists
+# - Updates the Supabase database
+# - Sends WhatsApp notifications via Twilio
+
+on:
+  # Run every hour at minute 0
+  schedule:
+    - cron: '0 * * * *'  # Every hour (00:00, 01:00, 02:00, etc.)
+  
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📊 Fetch Latest Fitness Data
+        run: |
+          echo "⏰ Starting automatic data refresh at $(date)"
+          
+          # Call the refresh endpoint
+          response=$(curl -s -w "\n%{http_code}" https://fitness-tracker-flame-kappa.vercel.app/api/refresh)
+          
+          # Extract HTTP status code (last line)
+          http_code=$(echo "$response" | tail -n1)
+          
+          # Extract response body (everything except last line)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "📡 Response Code: $http_code"
+          echo "📄 Response Body: $body"
+          
+          # Check if successful
+          if [ "$http_code" -eq 200 ]; then
+            echo "✅ Successfully refreshed fitness data!"
+            echo "💬 WhatsApp notifications sent"
+            echo "🎉 Dashboard will show updated data"
+          else
+            echo "❌ Failed to refresh data (HTTP $http_code)"
+            exit 1
+          fi
+      
+      - name: 📈 Verify Data Update
+        run: |
+          echo "🔍 Checking aggregated data..."
+          curl -s https://fitness-tracker-flame-kappa.vercel.app/api/aggregates.json | jq '.'
+          echo "✅ Data verification complete"
