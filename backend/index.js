@@ -309,6 +309,23 @@ app.get('/api/refresh', async (req, res) => {
   }
 });
 
+// Webhook endpoint to receive GitHub Gist update notifications
+app.post('/api/webhook', async (req, res) => {
+  console.log('📬 Webhook received!');
+  console.log('Headers:', req.headers);
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  
+  // Respond immediately to GitHub so it knows we received it
+  res.status(200).json({ 
+    success: true,
+    message: 'Webhook received',
+    timestamp: new Date().toISOString()
+  });
+  
+  // Log for debugging
+  console.log('✅ Webhook acknowledged');
+});
+
 // Start polling in background if not in serverless environment
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   // Start polling every 60 seconds (only for local development)
