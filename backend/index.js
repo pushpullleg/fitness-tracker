@@ -267,6 +267,48 @@ app.get('/api/aggregates.json', async (req, res) => {
   }
 });
 
+// Manual refresh endpoint to trigger data fetch
+app.post('/api/refresh', async (req, res) => {
+  try {
+    console.log('🔄 Manual refresh triggered');
+    await pollAllGists();
+    
+    res.json({ 
+      success: true,
+      message: 'Data refreshed successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error during manual refresh:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to refresh data',
+      message: error.message 
+    });
+  }
+});
+
+// GET version of refresh for easier testing
+app.get('/api/refresh', async (req, res) => {
+  try {
+    console.log('🔄 Manual refresh triggered (GET)');
+    await pollAllGists();
+    
+    res.json({ 
+      success: true,
+      message: 'Data refreshed successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error during manual refresh:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to refresh data',
+      message: error.message 
+    });
+  }
+});
+
 // Start polling in background if not in serverless environment
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   // Start polling every 60 seconds (only for local development)
