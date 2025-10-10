@@ -1,15 +1,15 @@
 name: Auto Refresh Fitness Data
 
-# This GitHub Action automatically fetches new fitness data every hour
+# This GitHub Action automatically fetches new fitness data every 15 minutes
 # It calls the /api/refresh endpoint which:
 # - Fetches data from all 4 GitHub Gists
 # - Updates the Supabase database
 # - Sends WhatsApp notifications via Twilio
 
 on:
-  # Run every hour at minute 0
+  # Run every 15 minutes
   schedule:
-    - cron: '0 * * * *'  # Every hour (00:00, 01:00, 02:00, etc.)
+    - cron: '*/15 * * * *'  # Every 15 minutes (00:00, 00:15, 00:30, 00:45, etc.)
   
   # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
