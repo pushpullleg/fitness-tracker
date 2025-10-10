@@ -311,19 +311,34 @@ app.get('/api/refresh', async (req, res) => {
 
 // Webhook endpoint to receive GitHub Gist update notifications
 app.post('/api/webhook', async (req, res) => {
-  console.log('📬 Webhook received!');
-  console.log('Headers:', req.headers);
-  console.log('Body:', JSON.stringify(req.body, null, 2));
+  const startTime = new Date();
+  console.log('📬 Webhook received at:', startTime.toISOString());
+  console.log('From GitHub:', req.headers['user-agent']);
   
-  // Respond immediately to GitHub so it knows we received it
+  // Respond immediately to GitHub so it knows we received it (GitHub has 10 second timeout)
   res.status(200).json({ 
     success: true,
-    message: 'Webhook received',
-    timestamp: new Date().toISOString()
+    message: 'Webhook received, processing in background',
+    timestamp: startTime.toISOString()
   });
   
-  // Log for debugging
-  console.log('✅ Webhook acknowledged');
+  // Process the webhook in background (after responding to GitHub)
+  try {
+    console.log('🔄 Starting automatic data refresh from webhook...');
+    
+    // Fetch new data from all Gists and update database
+    await pollAllGists();
+    
+    const endTime = new Date();
+    const duration = endTime - startTime;
+    
+    console.log(`✅ Webhook processing completed in ${duration}ms`);
+    console.log('💬 WhatsApp notifications sent (if configured in pollAllGists)');
+    
+  } catch (error) {
+    console.error('❌ Error processing webhook:', error.message);
+    console.error('Stack:', error.stack);
+  }
 });
 
 // Start polling in background if not in serverless environment
