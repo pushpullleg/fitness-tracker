@@ -108,7 +108,7 @@ async function processGistLogs(gistUrl) {
       if (result.rows.length > 0) {
         console.log(`New activity logged: ${member} - ${activity} (${duration} min)`);
         
-        const message = `🏋️ Fittober Update!\n\n${member} completed ${duration} minutes of ${activity}.\n\nKeep up the great work! 💪`;
+        const message = `${member} completed ${duration} minutes of ${activity}.`;
         
         // Send to multiple team members (fallback to single recipient if not comma-separated)
         const recipients = process.env.TWILIO_TO 
