@@ -108,17 +108,29 @@ async function processGistLogs(gistUrl) {
       if (result.rows.length > 0) {
         console.log(`New activity logged: ${member} - ${activity} (${duration} min)`);
         
-        const message = `${member} completed ${duration} minutes of ${activity}.`;
+        const message = `🏋️ Fittober Update!\n\n${member} completed ${duration} minutes of ${activity}.\n\nKeep up the great work! 💪`;
+        
+        // Send to multiple team members
+        const recipients = process.env.TWILIO_TO.split(',').map(num => num.trim());
         
         try {
-          await client.messages.create({
-            from: process.env.TWILIO_FROM,
-            to: process.env.TWILIO_TO,
-            body: message,
+          const notificationPromises = recipients.map(async (recipient) => {
+            try {
+              await client.messages.create({
+                from: process.env.TWILIO_FROM,
+                to: recipient,
+                body: message,
+              });
+              console.log(`WhatsApp notification sent to ${recipient}: ${message}`);
+            } catch (error) {
+              console.error(`Error sending to ${recipient}:`, error.message);
+            }
           });
-          console.log(`WhatsApp notification sent: ${message}`);
+          
+          await Promise.all(notificationPromises);
+          console.log(`Notifications sent to ${recipients.length} team members`);
         } catch (whatsappError) {
-          console.error('Error sending WhatsApp message:', whatsappError.message);
+          console.error('Error sending WhatsApp messages:', whatsappError.message);
         }
       }
 
