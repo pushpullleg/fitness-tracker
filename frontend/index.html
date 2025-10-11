@@ -275,12 +275,10 @@
 
         async function refreshData() {
             const button = document.getElementById('refresh-button');
-            const text = document.getElementById('refresh-text');
             
             try {
                 button.disabled = true;
                 button.classList.add('refreshing');
-                text.textContent = 'Refreshing...';
                 
                 const refreshResponse = await fetch(`${API_BASE_URL}/refresh`);
                 
@@ -291,17 +289,8 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 await loadData();
                 
-                text.textContent = 'Updated!';
-                setTimeout(() => {
-                    text.textContent = 'Refresh Data';
-                }, 2000);
-                
             } catch (error) {
                 console.error('Error refreshing data:', error);
-                text.textContent = 'Refresh Failed';
-                setTimeout(() => {
-                    text.textContent = 'Refresh Data';
-                }, 2000);
                 alert('Failed to refresh data: ' + error.message);
             } finally {
                 button.disabled = false;
