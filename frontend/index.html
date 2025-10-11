@@ -28,7 +28,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
@@ -352,7 +352,7 @@
                             borderColor: '#FFC333',
                             borderWidth: 2,
                             padding: 16,
-                            displayColors: true,
+                            displayColors: false,
                             titleFont: {
                                 size: 16,
                                 weight: 'bold'
@@ -366,10 +366,7 @@
                                 },
                                 label: function(context) {
                                     const percentage = ((context.parsed / parseInt(data.total_min)) * 100).toFixed(1);
-                                    return [
-                                        `Minutes: ${context.parsed}`,
-                                        `Percentage: ${percentage}%`
-                                    ];
+                                    return `${context.parsed} mins | ${percentage}% of team total`;
                                 }
                             }
                         },
