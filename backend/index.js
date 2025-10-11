@@ -285,6 +285,34 @@ app.get('/api/aggregates.json', async (req, res) => {
   }
 });
 
+// Recent activities endpoint
+app.get('/api/recent', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 5;
+    
+    const recentActivitiesQuery = `
+      SELECT member, activity, duration_min, ts 
+      FROM activities 
+      ORDER BY ts DESC 
+      LIMIT $1
+    `;
+    
+    const result = await pool.query(recentActivitiesQuery, [limit]);
+
+    res.json({
+      activities: result.rows,
+      count: result.rows.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching recent activities:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: error.message 
+    });
+  }
+});
+
 // Manual refresh endpoint to trigger data fetch
 app.post('/api/refresh', async (req, res) => {
   try {
