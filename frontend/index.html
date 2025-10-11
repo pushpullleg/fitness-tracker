@@ -341,9 +341,9 @@
             // Create new chart
             const ctx = document.getElementById('activityChart').getContext('2d');
             chart = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
-                    labels: fullNames, // Full names in legend
+                    labels: fullNames, // Full names for tooltip
                     datasets: [{
                         data: values,
                         backgroundColor: backgroundColors,
@@ -356,47 +356,45 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '65%', // Creates the doughnut hole
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 16,
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                font: {
-                                    size: 13,
-                                    weight: '600',
-                                    family: "'Inter', sans-serif"
-                                },
-                                color: '#00386C',
-                                generateLabels: function(chart) {
-                                    const data = chart.data;
-                                    return data.labels.map((label, i) => ({
-                                        text: `${i + 1}. ${label}`,
-                                        fillStyle: data.datasets[0].backgroundColor[i],
-                                        hidden: false,
-                                        index: i
-                                    }));
-                                }
-                            }
+                            display: false // Hide legend for cleaner look
                         },
                         tooltip: {
-                            enabled: false // Disable tooltip as requested
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 56, 108, 0.95)',
+                            titleColor: '#FFC333',
+                            bodyColor: '#ffffff',
+                            borderColor: '#FFC333',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    return `${context.parsed} minutes`;
+                                }
+                            }
                         },
                         datalabels: {
                             color: '#ffffff',
                             font: {
                                 weight: 'bold',
-                                size: 14
+                                size: 13
                             },
                             formatter: (value, context) => {
                                 const firstName = sortedMembers[context.dataIndex].name.split(' ')[0];
                                 const percentage = ((value / parseInt(data.total_min)) * 100).toFixed(1);
-                                return `${firstName}\n${value}\n${percentage}%`;
+                                return `${firstName}\n${percentage}%`;
                             },
                             textAlign: 'center',
-                            anchor: 'center',
-                            clamp: true
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 8,
+                            clamp: false
                         }
                     },
                     animation: {
@@ -406,7 +404,30 @@
                         easing: 'easeInOutQuart'
                     }
                 },
-                plugins: [ChartDataLabels]
+                plugins: [ChartDataLabels, {
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+                        const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                        
+                        ctx.save();
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        // Draw total minutes number
+                        ctx.font = 'bold 3rem "Inter", sans-serif';
+                        ctx.fillStyle = '#FFC333';
+                        ctx.fillText(data.total_min, centerX, centerY - 15);
+                        
+                        // Draw "minutes" label
+                        ctx.font = '600 1rem "Inter", sans-serif';
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                        ctx.fillText('minutes', centerX, centerY + 25);
+                        
+                        ctx.restore();
+                    }
+                }]
             });
 
             document.getElementById('dashboard-content').style.display = 'block';
