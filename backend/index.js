@@ -7,9 +7,12 @@ const twilio = require('twilio');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Database connection with error handling
+// Database connection with error handling and connection limits
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  max: 1, // Limit to 1 connection for serverless (Vercel)
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
 // Handle pool errors to prevent crashes
