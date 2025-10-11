@@ -315,9 +315,6 @@
                 parseInt(b.total_min) - parseInt(a.total_min)
             );
 
-            // Update total minutes
-            document.getElementById('total-minutes').textContent = data.total_min || 0;
-
             // Prepare chart data with first names and percentages
             const labels = sortedMembers.map(member => {
                 const firstName = member.name.split(' ')[0];
