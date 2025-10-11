@@ -201,7 +201,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏋️ FITTOBER 2025 🏋️</h1>
+            <h1>The Excel-erators</h1>
         </div>
 
         <div class="dashboard">
@@ -211,9 +211,6 @@
             </div>
 
             <div id="dashboard-content" style="display: none;">
-                <div class="team-name">The Excel-erators</div>
-                <div class="total-minutes" id="total-minutes">0</div>
-                <div class="total-label">Total Minutes</div>
 
                 <div class="chart-container">
                     <canvas id="activityChart"></canvas>
@@ -367,34 +364,31 @@
                             titleColor: '#FFC333',
                             bodyColor: '#ffffff',
                             borderColor: '#FFC333',
-                            borderWidth: 1,
-                            padding: 12,
+                            borderWidth: 2,
+                            padding: 16,
                             displayColors: true,
+                            titleFont: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 14
+                            },
                             callbacks: {
                                 title: function(context) {
-                                    return context[0].label;
+                                    return context[0].label; // Full name
                                 },
                                 label: function(context) {
-                                    return `${context.parsed} minutes`;
+                                    const percentage = ((context.parsed / parseInt(data.total_min)) * 100).toFixed(1);
+                                    return [
+                                        `Minutes: ${context.parsed}`,
+                                        `Percentage: ${percentage}%`
+                                    ];
                                 }
                             }
                         },
                         datalabels: {
-                            color: '#ffffff',
-                            font: {
-                                weight: 'bold',
-                                size: 13
-                            },
-                            formatter: (value, context) => {
-                                const firstName = sortedMembers[context.dataIndex].name.split(' ')[0];
-                                const percentage = ((value / parseInt(data.total_min)) * 100).toFixed(1);
-                                return `${firstName}\n${percentage}%`;
-                            },
-                            textAlign: 'center',
-                            anchor: 'end',
-                            align: 'end',
-                            offset: 8,
-                            clamp: false
+                            display: false // Hide all labels on chart
                         }
                     },
                     animation: {
