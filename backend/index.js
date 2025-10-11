@@ -13,6 +13,7 @@ const pool = new Pool({
   max: 1, // Limit to 1 connection for serverless (Vercel)
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
+  allowExitOnIdle: true, // Allow process to exit when pool is idle
 });
 
 // Handle pool errors to prevent crashes
