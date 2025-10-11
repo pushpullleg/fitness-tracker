@@ -110,27 +110,33 @@ async function processGistLogs(gistUrl) {
         
         const message = `🏋️ Fittober Update!\n\n${member} completed ${duration} minutes of ${activity}.\n\nKeep up the great work! 💪`;
         
-        // Send to multiple team members
-        const recipients = process.env.TWILIO_TO.split(',').map(num => num.trim());
+        // Send to multiple team members (fallback to single recipient if not comma-separated)
+        const recipients = process.env.TWILIO_TO 
+          ? process.env.TWILIO_TO.split(',').map(num => num.trim())
+          : [];
         
-        try {
-          const notificationPromises = recipients.map(async (recipient) => {
-            try {
-              await client.messages.create({
-                from: process.env.TWILIO_FROM,
-                to: recipient,
-                body: message,
-              });
-              console.log(`WhatsApp notification sent to ${recipient}: ${message}`);
-            } catch (error) {
-              console.error(`Error sending to ${recipient}:`, error.message);
-            }
-          });
-          
-          await Promise.all(notificationPromises);
-          console.log(`Notifications sent to ${recipients.length} team members`);
-        } catch (whatsappError) {
-          console.error('Error sending WhatsApp messages:', whatsappError.message);
+        if (recipients.length > 0 && process.env.TWILIO_SID && process.env.TWILIO_TOKEN) {
+          try {
+            const notificationPromises = recipients.map(async (recipient) => {
+              try {
+                await client.messages.create({
+                  from: process.env.TWILIO_FROM,
+                  to: recipient,
+                  body: message,
+                });
+                console.log(`WhatsApp notification sent to ${recipient}`);
+              } catch (error) {
+                console.error(`Error sending to ${recipient}:`, error.message);
+              }
+            });
+            
+            await Promise.all(notificationPromises);
+            console.log(`Notifications sent to ${recipients.length} team members`);
+          } catch (whatsappError) {
+            console.error('Error sending WhatsApp messages:', whatsappError.message);
+          }
+        } else {
+          console.log('WhatsApp notifications skipped - missing Twilio configuration');
         }
       }
 
