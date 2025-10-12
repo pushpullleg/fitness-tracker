@@ -431,10 +431,10 @@ app.get('/api/send-digest', async (req, res) => {
     todayStart.setHours(0, 0, 0, 0);
     
     const activitiesQuery = `
-      SELECT member_name, activity_type, duration_minutes, timestamp
-      FROM fitness_logs
-      WHERE timestamp >= $1
-      ORDER BY timestamp DESC
+      SELECT member, activity, duration_min, logged_at as timestamp
+      FROM activities
+      WHERE logged_at >= $1
+      ORDER BY logged_at DESC
     `;
     
     const activitiesResult = await pool.query(activitiesQuery, [todayStart]);
@@ -442,9 +442,9 @@ app.get('/api/send-digest', async (req, res) => {
 
     // Get overall team standings
     const standingsQuery = `
-      SELECT member_name, SUM(duration_minutes) as total_minutes
-      FROM fitness_logs
-      GROUP BY member_name
+      SELECT member as member_name, SUM(duration_min) as total_minutes
+      FROM activities
+      GROUP BY member
       ORDER BY total_minutes DESC
     `;
     
@@ -507,17 +507,17 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
   // Group today's activities by member
   const activitiesByMember = {};
   todayActivities.forEach(activity => {
-    if (!activitiesByMember[activity.member_name]) {
-      activitiesByMember[activity.member_name] = [];
+    if (!activitiesByMember[activity.member]) {
+      activitiesByMember[activity.member] = [];
     }
-    activitiesByMember[activity.member_name].push(activity);
+    activitiesByMember[activity.member].push(activity);
   });
 
   // Calculate today's totals per member
   const todayTotals = {};
   Object.keys(activitiesByMember).forEach(member => {
     todayTotals[member] = activitiesByMember[member].reduce(
-      (sum, a) => sum + parseInt(a.duration_minutes), 
+      (sum, a) => sum + parseInt(a.duration_min), 
       0
     );
   });
@@ -546,7 +546,7 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
         minute: '2-digit',
         hour12: true 
       });
-      activitiesHtml += `<li style="margin: 5px 0;">${activity.activity_type} - ${activity.duration_minutes} mins (${time})</li>`;
+      activitiesHtml += `<li style="margin: 5px 0;">${activity.activity} - ${activity.duration_min} mins (${time})</li>`;
     });
     
     activitiesHtml += `
