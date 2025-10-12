@@ -502,6 +502,85 @@ app.get('/api/send-digest', async (req, res) => {
   }
 });
 
+// Test endpoint - sends email to only Mukesh for testing
+app.get('/api/test-digest', async (req, res) => {
+  console.log('📧 TEST Email digest triggered at:', new Date().toISOString());
+  
+  try {
+    if (!sgMail || !process.env.SENDGRID_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'SendGrid not configured or module not available'
+      });
+    }
+
+    // Get today's activities (since midnight)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    
+    const activitiesQuery = `
+      SELECT member, activity, duration_min, ts as timestamp
+      FROM activities
+      WHERE ts >= $1
+      ORDER BY ts DESC
+    `;
+    
+    const activitiesResult = await pool.query(activitiesQuery, [todayStart]);
+    const todayActivities = activitiesResult.rows;
+
+    // Get overall team standings
+    const standingsQuery = `
+      SELECT member as member_name, SUM(duration_min) as total_minutes
+      FROM activities
+      GROUP BY member
+      ORDER BY total_minutes DESC
+    `;
+    
+    const standingsResult = await pool.query(standingsQuery);
+    const teamStandings = standingsResult.rows;
+    
+    const totalMinutes = teamStandings.reduce((sum, m) => sum + parseInt(m.total_minutes), 0);
+
+    // Calculate days remaining
+    const challengeEnd = new Date('2025-10-31T23:59:59');
+    const now = new Date();
+    const daysRemaining = Math.ceil((challengeEnd - now) / (1000 * 60 * 60 * 24));
+
+    // Generate HTML email
+    const emailHtml = generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining);
+
+    // Send email ONLY to Mukesh for testing
+    const testRecipient = process.env.SENDGRID_FROM_EMAIL || 'mravichandr@leomail.tamuc.edu';
+
+    const msg = {
+      to: testRecipient,
+      from: process.env.SENDGRID_FROM_EMAIL || 'fittober@yourdomain.com',
+      subject: `[TEST] 🏋️ Fittober Update: ${todayActivities.length} activities logged today`,
+      html: emailHtml,
+    };
+
+    await sgMail.send(msg);
+
+    console.log(`✅ TEST Email digest sent to ${testRecipient}`);
+    
+    res.json({
+      success: true,
+      message: 'TEST email digest sent successfully (only to you)',
+      recipient: testRecipient,
+      activitiesToday: todayActivities.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Error sending TEST email digest:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send TEST email digest',
+      message: error.message
+    });
+  }
+});
+
 // Helper function to generate email HTML
 function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining) {
   // Group today's activities by member
