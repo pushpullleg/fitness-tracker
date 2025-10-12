@@ -24,7 +24,7 @@
     "nodejs",
     "express",
     "postgresql",
-    "whatsapp"
+    "email"
   ],
   "author": "Fittober Team",
   "license": "MIT"
