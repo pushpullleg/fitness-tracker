@@ -22,8 +22,18 @@ pool.on('error', (err, client) => {
   console.log('Database connection will be retried on next request');
 });
 
-// Twilio client
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+// Twilio client (initialize only if credentials exist)
+let client = null;
+if (process.env.TWILIO_SID && process.env.TWILIO_TOKEN) {
+  try {
+    client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
+    console.log('✅ Twilio client initialized');
+  } catch (error) {
+    console.error('❌ Failed to initialize Twilio client:', error.message);
+  }
+} else {
+  console.warn('⚠️  Twilio credentials not found - SMS notifications will be disabled');
+}
 
 // Gist URLs to poll
 const GIST_URLS = [
@@ -117,7 +127,7 @@ async function processGistLogs(gistUrl) {
           ? process.env.TWILIO_TO.split(',').map(num => num.trim())
           : [];
         
-        if (recipients.length > 0 && process.env.TWILIO_SID && process.env.TWILIO_TOKEN) {
+        if (client && recipients.length > 0 && process.env.TWILIO_FROM) {
           try {
             const notificationPromises = recipients.map(async (recipient) => {
               try {
