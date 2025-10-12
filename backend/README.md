@@ -1,6 +1,6 @@
 # Fittober Fitness Tracker - Backend
 
-A Node.js backend service that tracks fitness activities from multiple team members by polling GitHub Gists, stores data in PostgreSQL, and sends WhatsApp notifications via Twilio.
+A Node.js backend service that tracks fitness activities from multiple team members by polling GitHub Gists, stores data in PostgreSQL, and sends daily email digests via SendGrid.
 
 ## 🚀 Features
 
