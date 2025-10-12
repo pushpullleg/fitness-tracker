@@ -3,18 +3,24 @@ const express = require('express');
 const axios = require('axios');
 const { Pool } = require('pg');
 const twilio = require('twilio');
-const sgMail = require('@sendgrid/mail');
+
+// SendGrid client (initialize only if module is available)
+let sgMail = null;
+try {
+  sgMail = require('@sendgrid/mail');
+  if (process.env.SENDGRID_API_KEY) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    console.log('✅ SendGrid initialized');
+  } else {
+    console.warn('⚠️  SendGrid API key not found - email notifications will be disabled');
+  }
+} catch (error) {
+  console.error('❌ Failed to load SendGrid module:', error.message);
+  console.warn('⚠️  Email notifications will be disabled');
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-// SendGrid configuration
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  console.log('✅ SendGrid initialized');
-} else {
-  console.warn('⚠️  SendGrid API key not found - email notifications will be disabled');
-}
 
 // Database connection with error handling and connection limits
 const pool = new Pool({
@@ -413,10 +419,10 @@ app.get('/api/send-digest', async (req, res) => {
   console.log('📧 Email digest triggered at:', new Date().toISOString());
   
   try {
-    if (!process.env.SENDGRID_API_KEY) {
+    if (!sgMail || !process.env.SENDGRID_API_KEY) {
       return res.status(500).json({
         success: false,
-        error: 'SendGrid not configured'
+        error: 'SendGrid not configured or module not available'
       });
     }
 
