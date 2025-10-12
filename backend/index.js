@@ -526,17 +526,11 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
   let activitiesHtml = '';
   Object.keys(activitiesByMember).forEach(member => {
     const activities = activitiesByMember[member];
-    const memberEmojis = {
-      'Mukesh Ravichandran': '🏃',
-      'Tejaswini Damodara Kannan': '🧘',
-      'Jaahnavi Garikipati': '🚴',
-      'Trisha Harjono': '💪'
-    };
-    const emoji = memberEmojis[member] || '🏋️';
+    const firstName = member.split(' ')[0];
     
     activitiesHtml += `
       <div style="background: #f8f9fa; border-left: 4px solid #00386C; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
-        <h3 style="color: #00386C; margin: 0 0 10px 0; font-size: 18px;">${emoji} ${member.split(' ')[0]}</h3>
+        <h3 style="color: #00386C; margin: 0 0 10px 0; font-size: 18px;">${firstName}</h3>
         <ul style="margin: 0; padding-left: 20px;">
     `;
     
@@ -558,12 +552,12 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
 
   // Generate standings HTML
   let standingsHtml = '';
-  const medals = ['🥇', '🥈', '🥉', '📊'];
   teamStandings.forEach((member, index) => {
+    const firstName = member.member_name.split(' ')[0];
     const percentage = ((parseInt(member.total_minutes) / totalMinutes) * 100).toFixed(1);
     standingsHtml += `
       <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${medals[index]} ${member.member_name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${firstName}</td>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; font-weight: bold; color: #00386C;">${member.total_minutes} mins</td>
         <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #666;">${percentage}%</td>
       </tr>
@@ -593,9 +587,24 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
           color: '#fff',
           font: { size: 16, weight: 'bold' },
           formatter: (value) => value + ' min'
+        },
+        doughnutlabel: {
+          labels: [
+            {
+              text: totalMinutes.toString(),
+              font: { size: 48, weight: 'bold' },
+              color: '#000000'
+            },
+            {
+              text: 'min',
+              font: { size: 24 },
+              color: '#000000'
+            }
+          ]
         }
       },
-      cutout: '65%'
+      cutout: '65%',
+      backgroundColor: '#f0f0f0'
     }
   };
   
@@ -613,7 +622,7 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
     
     <!-- Header -->
     <div style="background: linear-gradient(135deg, #00386C 0%, #1172DE 100%); color: white; padding: 30px 20px; text-align: center;">
-      <h1 style="margin: 0 0 10px 0; font-size: 28px; font-weight: 800;">🏋️ THE EXCEL-ERATORS</h1>
+      <h1 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 800;">The Excel-erators</h1>
       <p style="margin: 0; font-size: 16px; opacity: 0.9;">Fittober 2025 Daily Update</p>
       <p style="margin: 10px 0 0 0; font-size: 14px; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 15px; border-radius: 20px;">
         ⏰ ${daysRemaining} days remaining
@@ -633,16 +642,17 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
 
     <!-- Today's Activities -->
     <div style="padding: 30px 20px;">
-      <h2 style="color: #00386C; margin: 0 0 20px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
-        📅 Today's Activities (${todayActivities.length} total)
+      <h2 style="color: #00386C; margin: 0 0 5px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
+        Today's Activities
       </h2>
-      ${activitiesHtml || '<p style="color: #666; text-align: center; padding: 20px;">No activities logged today yet. Get moving! 💪</p>'}
+      <p style="color: #666; margin: 5px 0 20px 0; font-size: 14px;">(${todayActivities.length} total)</p>
+      ${activitiesHtml || '<p style="color: #666; text-align: center; padding: 20px;">No activities logged today yet. Get moving!</p>'}
     </div>
 
     <!-- Team Standings -->
     <div style="padding: 0 20px 30px 20px;">
       <h2 style="color: #00386C; margin: 0 0 20px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
-        🏆 Overall Standings
+        Individual Contribution
       </h2>
       <table style="width: 100%; border-collapse: collapse; background: white;">
         <thead>
