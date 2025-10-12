@@ -108,13 +108,11 @@ async function processGistLogs(gistUrl) {
         JSON.stringify(log)
       ]);
 
-      // If a new record was inserted, send WhatsApp notification
+      // If a new record was inserted, send SMS notification
       if (result.rows.length > 0) {
         console.log(`New activity logged: ${member} - ${activity} (${duration} min)`);
         
-        const message = `${member} completed ${duration} minutes of ${activity}.`;
-        
-        // Send to multiple team members (fallback to single recipient if not comma-separated)
+        // Send SMS to multiple team members
         const recipients = process.env.TWILIO_TO 
           ? process.env.TWILIO_TO.split(',').map(num => num.trim())
           : [];
@@ -126,21 +124,21 @@ async function processGistLogs(gistUrl) {
                 await client.messages.create({
                   from: process.env.TWILIO_FROM,
                   to: recipient,
-                  body: message,
+                  body: `🏋️ ${member} completed ${duration} minutes of ${activity}!`,
                 });
-                console.log(`WhatsApp notification sent to ${recipient}`);
+                console.log(`SMS notification sent to ${recipient}`);
               } catch (error) {
-                console.error(`Error sending to ${recipient}:`, error.message);
+                console.error(`Error sending SMS to ${recipient}:`, error.message);
               }
             });
             
             await Promise.all(notificationPromises);
-            console.log(`Notifications sent to ${recipients.length} team members`);
-          } catch (whatsappError) {
-            console.error('Error sending WhatsApp messages:', whatsappError.message);
+            console.log(`SMS notifications sent to ${recipients.length} team members`);
+          } catch (smsError) {
+            console.error('Error sending SMS messages:', smsError.message);
           }
         } else {
-          console.log('WhatsApp notifications skipped - missing Twilio configuration');
+          console.log('SMS notifications skipped - missing Twilio configuration');
         }
       }
 
