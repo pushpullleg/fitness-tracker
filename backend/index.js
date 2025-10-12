@@ -3,9 +3,18 @@ const express = require('express');
 const axios = require('axios');
 const { Pool } = require('pg');
 const twilio = require('twilio');
+const sgMail = require('@sendgrid/mail');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// SendGrid configuration
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅ SendGrid initialized');
+} else {
+  console.warn('⚠️  SendGrid API key not found - email notifications will be disabled');
+}
 
 // Database connection with error handling and connection limits
 const pool = new Pool({
@@ -391,13 +400,280 @@ app.post('/api/webhook', async (req, res) => {
     const duration = endTime - startTime;
     
     console.log(`✅ Webhook processing completed in ${duration}ms`);
-    console.log('💬 WhatsApp notifications sent (if configured in pollAllGists)');
+    console.log('💬 SMS notifications sent (if configured in pollAllGists)');
     
   } catch (error) {
     console.error('❌ Error processing webhook:', error.message);
     console.error('Stack:', error.stack);
   }
 });
+
+// Daily email digest endpoint (triggered by cron job at 9 PM CST)
+app.get('/api/send-digest', async (req, res) => {
+  console.log('📧 Email digest triggered at:', new Date().toISOString());
+  
+  try {
+    if (!process.env.SENDGRID_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'SendGrid not configured'
+      });
+    }
+
+    // Get today's activities (since midnight)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    
+    const activitiesQuery = `
+      SELECT member_name, activity_type, duration_minutes, timestamp
+      FROM fitness_logs
+      WHERE timestamp >= $1
+      ORDER BY timestamp DESC
+    `;
+    
+    const activitiesResult = await pool.query(activitiesQuery, [todayStart]);
+    const todayActivities = activitiesResult.rows;
+
+    // Get overall team standings
+    const standingsQuery = `
+      SELECT member_name, SUM(duration_minutes) as total_minutes
+      FROM fitness_logs
+      GROUP BY member_name
+      ORDER BY total_minutes DESC
+    `;
+    
+    const standingsResult = await pool.query(standingsQuery);
+    const teamStandings = standingsResult.rows;
+    
+    const totalMinutes = teamStandings.reduce((sum, m) => sum + parseInt(m.total_minutes), 0);
+
+    // Calculate days remaining
+    const challengeEnd = new Date('2025-10-31T23:59:59');
+    const now = new Date();
+    const daysRemaining = Math.ceil((challengeEnd - now) / (1000 * 60 * 60 * 24));
+
+    // Generate HTML email
+    const emailHtml = generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining);
+
+    // Send email to all team members
+    const recipients = process.env.EMAIL_RECIPIENTS 
+      ? process.env.EMAIL_RECIPIENTS.split(',').map(email => email.trim())
+      : [];
+
+    if (recipients.length === 0) {
+      return res.status(500).json({
+        success: false,
+        error: 'No email recipients configured'
+      });
+    }
+
+    const msg = {
+      to: recipients,
+      from: process.env.SENDGRID_FROM_EMAIL || 'fittober@yourdomain.com',
+      subject: `🏋️ Fittober Update: ${todayActivities.length} activities logged today`,
+      html: emailHtml,
+    };
+
+    await sgMail.send(msg);
+
+    console.log(`✅ Email digest sent to ${recipients.length} recipients`);
+    
+    res.json({
+      success: true,
+      message: 'Email digest sent successfully',
+      recipients: recipients.length,
+      activitiesToday: todayActivities.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Error sending email digest:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send email digest',
+      message: error.message
+    });
+  }
+});
+
+// Helper function to generate email HTML
+function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining) {
+  // Group today's activities by member
+  const activitiesByMember = {};
+  todayActivities.forEach(activity => {
+    if (!activitiesByMember[activity.member_name]) {
+      activitiesByMember[activity.member_name] = [];
+    }
+    activitiesByMember[activity.member_name].push(activity);
+  });
+
+  // Calculate today's totals per member
+  const todayTotals = {};
+  Object.keys(activitiesByMember).forEach(member => {
+    todayTotals[member] = activitiesByMember[member].reduce(
+      (sum, a) => sum + parseInt(a.duration_minutes), 
+      0
+    );
+  });
+
+  // Generate activities section
+  let activitiesHtml = '';
+  Object.keys(activitiesByMember).forEach(member => {
+    const activities = activitiesByMember[member];
+    const memberEmojis = {
+      'Mukesh Ravichandran': '🏃',
+      'Tejaswini Damodara Kannan': '🧘',
+      'Jaahnavi Garikipati': '🚴',
+      'Trisha Harjono': '💪'
+    };
+    const emoji = memberEmojis[member] || '🏋️';
+    
+    activitiesHtml += `
+      <div style="background: #f8f9fa; border-left: 4px solid #00386C; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+        <h3 style="color: #00386C; margin: 0 0 10px 0; font-size: 18px;">${emoji} ${member.split(' ')[0]}</h3>
+        <ul style="margin: 0; padding-left: 20px;">
+    `;
+    
+    activities.forEach(activity => {
+      const time = new Date(activity.timestamp).toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+      activitiesHtml += `<li style="margin: 5px 0;">${activity.activity_type} - ${activity.duration_minutes} mins (${time})</li>`;
+    });
+    
+    activitiesHtml += `
+        </ul>
+        <p style="margin: 10px 0 0 0; font-weight: bold; color: #FFC333;">Total today: ${todayTotals[member]} mins</p>
+      </div>
+    `;
+  });
+
+  // Generate standings HTML
+  let standingsHtml = '';
+  const medals = ['🥇', '🥈', '🥉', '📊'];
+  teamStandings.forEach((member, index) => {
+    const percentage = ((parseInt(member.total_minutes) / totalMinutes) * 100).toFixed(1);
+    standingsHtml += `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${medals[index]} ${member.member_name}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; font-weight: bold; color: #00386C;">${member.total_minutes} mins</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #666;">${percentage}%</td>
+      </tr>
+    `;
+  });
+
+  // Embedded dashboard image (using Chart.js via QuickChart)
+  const chartData = teamStandings.map(m => parseInt(m.total_minutes));
+  const chartLabels = teamStandings.map(m => m.member_name.split(' ')[0]);
+  const chartColors = ['#FFC333', '#1172DE', '#10B981', '#F26839'];
+  
+  const chartConfig = {
+    type: 'doughnut',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        data: chartData,
+        backgroundColor: chartColors,
+        borderWidth: 3,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          color: '#fff',
+          font: { size: 16, weight: 'bold' },
+          formatter: (value) => value + ' min'
+        }
+      },
+      cutout: '65%'
+    }
+  };
+  
+  const chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}&width=500&height=300`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #00386C 0%, #1172DE 100%); color: white; padding: 30px 20px; text-align: center;">
+      <h1 style="margin: 0 0 10px 0; font-size: 28px; font-weight: 800;">🏋️ THE EXCEL-ERATORS</h1>
+      <p style="margin: 0; font-size: 16px; opacity: 0.9;">Fittober 2025 Daily Update</p>
+      <p style="margin: 10px 0 0 0; font-size: 14px; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 15px; border-radius: 20px;">
+        ⏰ ${daysRemaining} days remaining
+      </p>
+    </div>
+
+    <!-- Dashboard Chart -->
+    <div style="padding: 30px 20px; text-align: center; background: #fafafa;">
+      <h2 style="color: #00386C; margin: 0 0 20px 0;">📊 Team Progress</h2>
+      <img src="${chartUrl}" alt="Team Activity Chart" style="max-width: 100%; height: auto; border-radius: 10px;" />
+      <p style="margin: 15px 0 0 0;">
+        <a href="https://pushpullleg.github.io/fitness-tracker/" style="display: inline-block; background: #FFC333; color: #00386C; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+          View Live Dashboard →
+        </a>
+      </p>
+    </div>
+
+    <!-- Today's Activities -->
+    <div style="padding: 30px 20px;">
+      <h2 style="color: #00386C; margin: 0 0 20px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
+        📅 Today's Activities (${todayActivities.length} total)
+      </h2>
+      ${activitiesHtml || '<p style="color: #666; text-align: center; padding: 20px;">No activities logged today yet. Get moving! 💪</p>'}
+    </div>
+
+    <!-- Team Standings -->
+    <div style="padding: 0 20px 30px 20px;">
+      <h2 style="color: #00386C; margin: 0 0 20px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
+        🏆 Overall Standings
+      </h2>
+      <table style="width: 100%; border-collapse: collapse; background: white;">
+        <thead>
+          <tr style="background: #00386C; color: white;">
+            <th style="padding: 12px; text-align: left;">Member</th>
+            <th style="padding: 12px; text-align: right;">Total Minutes</th>
+            <th style="padding: 12px; text-align: right;">% of Team</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${standingsHtml}
+        </tbody>
+        <tfoot>
+          <tr style="background: #FFC333; font-weight: bold;">
+            <td style="padding: 12px;">Team Total</td>
+            <td style="padding: 12px; text-align: right;" colspan="2">${totalMinutes} minutes</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #ddd;">
+      <p style="margin: 0; color: #666; font-size: 14px;">
+        Keep crushing it, Excel-erators! 💪
+      </p>
+      <p style="margin: 10px 0 0 0; color: #999; font-size: 12px;">
+        You're receiving this because you're part of The Excel-erators team.<br>
+        Challenge ends October 31, 2025
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+  `;
+}
 
 // Start polling in background if not in serverless environment
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
