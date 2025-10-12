@@ -431,10 +431,10 @@ app.get('/api/send-digest', async (req, res) => {
     todayStart.setHours(0, 0, 0, 0);
     
     const activitiesQuery = `
-      SELECT member, activity, duration_min, logged_at as timestamp
+      SELECT member, activity, duration_min, ts as timestamp
       FROM activities
-      WHERE logged_at >= $1
-      ORDER BY logged_at DESC
+      WHERE ts >= $1
+      ORDER BY ts DESC
     `;
     
     const activitiesResult = await pool.query(activitiesQuery, [todayStart]);
