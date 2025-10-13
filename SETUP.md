@@ -253,7 +253,7 @@ curl https://your-vercel-url.vercel.app/api/send-digest
 ### GitHub Actions Not Running
 - **Check:** Workflow file is in `.github/workflows/email-digest.yml`
 - **Check:** Workflow is enabled (Actions → Select workflow → Enable)
-- **Check:** UTC time conversion (9 PM CST = 02:00 UTC next day)
+- **Check:** UTC time conversion (2 PM CST = 20:00 UTC same day)
 
 ### Database Connection Pool Errors
 - **Check:** Using Session Mode connection string (port 5432)
@@ -273,7 +273,7 @@ PostgreSQL (Supabase)
     ↓
 Frontend (GitHub Pages) ← Users view here
     ↓
-SendGrid → Email to team (daily at 9 PM CST)
+SendGrid → Email to team (daily at 2 PM CST)
 ```
 
 ---
@@ -291,6 +291,6 @@ SendGrid → Email to team (daily at 9 PM CST)
 After setup is complete:
 1. ✅ Verify dashboard shows data
 2. ✅ Test email digest
-3. ✅ Wait for first automated email at 9 PM CST
+3. ✅ Wait for first automated email at 2 PM CST
 4. ✅ Monitor GitHub Actions logs
 5. ✅ Add README with project details

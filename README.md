@@ -30,7 +30,7 @@ Fittober is a comprehensive fitness tracking system that:
 
 - **📈 Real-Time Dashboard**: Interactive doughnut chart showing team progress- **Handles real-time updates** with automatic refresh every minute
 
-- **📧 Daily Email Digests**: Automated emails at 9 PM CST with embedded dashboard
+- **📧 Daily Email Digests**: Automated emails at 2 PM CST with embedded dashboard
 
 - **🔄 Automatic Updates**: Polls GitHub Gists every 15 minutes for new activities## 🏗️ Architecture
 
@@ -110,7 +110,7 @@ Fittober is a comprehensive fitness tracking system that:
 
 │  - Stores in Database                   │
 
-│  - Triggers Email (9 PM CST)           │### 1. Backend Setup
+│  - Triggers Email (2 PM CST)           │### 1. Backend Setup
 
 └────────┬────────────────────────────────┘
 
@@ -212,7 +212,7 @@ fitness-tracker/- ✅ **Flexible Data Structure**: Handles different gist format
 
 │       ├── poll-gists.yml        # Polls gists every 15 min
 
-│       └── email-digest.yml      # Sends email daily at 9 PM CST## 📱 WhatsApp Notifications
+│       └── email-digest.yml      # Sends email daily at 2 PM CST## 📱 WhatsApp Notifications
 
 ├── api/
 

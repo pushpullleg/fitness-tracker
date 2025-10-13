@@ -2,10 +2,9 @@ name: Send Daily Email Digest
 
 on:
   schedule:
-    # Runs at 9:00 PM CST (02:00 UTC next day)
-    # CST is UTC-6, so 9 PM CST = 3 AM UTC next day (during daylight saving)
-    # CST is UTC-6, so 9 PM CST = 2 AM UTC next day (during standard time)
-    - cron: '0 2 * * *'  # 9:00 PM CST (standard time)
+    # Runs at 2:00 PM CST (20:00 UTC same day)
+    # CST is UTC-6, so 2 PM CST = 8 PM UTC (20:00)
+    - cron: '0 20 * * *'  # 2:00 PM CST (standard time)
   workflow_dispatch:  # Allow manual trigger for testing
 
 jobs:
@@ -15,6 +14,6 @@ jobs:
     steps:
       - name: Send Email Digest
         run: |
-          echo "Sending daily email digest at 9 PM CST..."
+          echo "Sending daily email digest at 2 PM CST..."
           curl -s -X GET "https://fitness-tracker-flame-kappa.vercel.app/api/send-digest"
           echo "Email digest triggered successfully!"
