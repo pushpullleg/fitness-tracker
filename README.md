@@ -1,14 +1,22 @@
-# 🏋️ Fittober 2025 - The Excel-erators Team Tracker# 🏃‍♂️ Fittober Fitness Tracker
+# ‍♂️ Fittober Fitness Tracker
 
+A real-time fitness tracking dashboard for **The Excel-erators** team challenge (October 1-31, 2025). Track activities, visualize progress, and stay motivated with automated daily email digests!
 
+[![Live Dashboard](https://img.shields.io/badge/Live-Dashboard-blue?style=for-the-badge)](https://pushpullleg.github.io/fitness-tracker/)
+[![API Status](https://img.shields.io/badge/API-Online-success?style=for-the-badge)](https://fitness-tracker-flame-kappa.vercel.app/)
 
-A real-time fitness tracking dashboard for **The Excel-erators** team challenge (October 1-31, 2025). Track activities, visualize progress, and stay motivated with automated daily email digests!A complete solution for tracking fitness activities from multiple team members with real-time WhatsApp notifications and beautiful data visualization.
+---
 
+## 📚 Documentation
 
+- **[Setup Guide](./SETUP.md)** - Complete installation and deployment instructions
+- **[Email Setup](./EMAIL_SETUP.md)** - SendGrid configuration for daily digests
+- **[Project Journey](./PROJECT_JOURNEY.md)** - What we tried, what worked, and lessons learned
+- **[Contributing](./CONTRIBUTING.md)** - How to add screenshots, diagrams, and improvements
 
-[![Live Dashboard](https://img.shields.io/badge/Live-Dashboard-brightgreen)](https://pushpullleg.github.io/fitness-tracker/)## 🌟 Overview
+---
 
-[![API Status](https://img.shields.io/badge/API-Online-success)](https://fitness-tracker-flame-kappa.vercel.app/health)
+## 🌟 Overview
 
 Fittober is a comprehensive fitness tracking system that:
 
@@ -630,16 +638,36 @@ MIT License - feel free to use this for your own team challenges!- Polling statu
 
 
 
-**Made with ❤️ by The Excel-erators** | October 2025## 🎯 Roadmap
+## 🎯 Future Improvements
 
+Want to see what we tried and what didn't work? Check out **[PROJECT_JOURNEY.md](./PROJECT_JOURNEY.md)** for:
+- 🚫 Features we attempted (SMS/WhatsApp challenges)
+- 💡 Future enhancement ideas (Activity streaks, Personal bests, Weekly summaries)
+- 📊 Technical debt and optimization opportunities
+- 🎓 Lessons learned and recommendations for next challenge
 
-Potential future enhancements:
-- [ ] GitHub webhook integration for real-time updates
-- [ ] Additional chart types (bar, line, etc.)
-- [ ] Member-specific activity breakdowns
-- [ ] Historical data trends
-- [ ] Mobile app companion
-- [ ] Slack integration option
+**High-Priority Ideas:**
+- [ ] Activity type icons/emojis in emails 🏃‍♂️
+- [ ] Personal bests tracking 🏆
+- [ ] Weekly summary emails 📊
+- [ ] Activity streak counter 🔥
+- [ ] CSV export for analysis 📥
+
+See the full roadmap in [PROJECT_JOURNEY.md](./PROJECT_JOURNEY.md)!
+
+---
+
+## 🤝 Contributing
+
+Want to improve the project? Check out **[CONTRIBUTING.md](./CONTRIBUTING.md)** for guides on:
+- 📸 Adding screenshots and demo GIFs
+- 🎨 Creating architecture diagrams
+- 🏷️ Adding badges and visual enhancements
+- 📊 Implementing new charts and visualizations
+- 🧪 Writing tests
+- 📝 Improving documentation
+
+---
 
 ## 📄 License
 
@@ -647,6 +675,6 @@ MIT License - feel free to use and modify for your team's needs.
 
 ---
 
-**Built with ❤️ for the Fittober team**
+**Made with ❤️ by The Excel-erators** | October 2025
 
 *Track, notify, and visualize your team's fitness journey in real-time!*
