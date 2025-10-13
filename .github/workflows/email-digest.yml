@@ -2,9 +2,11 @@ name: Send Daily Email Digest
 
 on:
   schedule:
-    # Runs at 2:00 PM CST (20:00 UTC same day)
-    # CST is UTC-6, so 2 PM CST = 8 PM UTC (20:00)
-    - cron: '0 20 * * *'  # 2:00 PM CST (standard time)
+    # Runs at 2:00 PM CDT (19:00 UTC) / 2:00 PM CST (20:00 UTC)
+    # CDT (summer): UTC-5, so 2 PM CDT = 7 PM UTC (19:00)
+    # CST (winter): UTC-6, so 2 PM CST = 8 PM UTC (20:00)
+    # Using 19:00 UTC for daylight saving time (March-November)
+    - cron: '0 19 * * *'  # 2:00 PM CDT (daylight saving time)
   workflow_dispatch:  # Allow manual trigger for testing
 
 jobs:
@@ -12,8 +14,36 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Display Trigger Time
+        run: |
+          echo "============================================"
+          echo "📧 Daily Email Digest Workflow Started"
+          echo "============================================"
+          echo "Triggered at (UTC): $(date -u)"
+          echo "Triggered at (CDT): $(TZ='America/Chicago' date)"
+          echo "============================================"
+      
       - name: Send Email Digest
         run: |
-          echo "Sending daily email digest at 2 PM CST..."
-          curl -s -X GET "https://fitness-tracker-flame-kappa.vercel.app/api/send-digest"
-          echo "Email digest triggered successfully!"
+          echo "📤 Calling send-digest API endpoint..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://fitness-tracker-flame-kappa.vercel.app/api/send-digest")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          
+          echo "HTTP Status Code: $HTTP_CODE"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Email digest sent successfully!"
+          else
+            echo "❌ Failed to send email digest. HTTP $HTTP_CODE"
+            exit 1
+          fi
+      
+      - name: Verify Completion
+        run: |
+          echo "============================================"
+          echo "✅ Daily Email Digest Workflow Completed"
+          echo "Completed at (UTC): $(date -u)"
+          echo "Completed at (CDT): $(TZ='America/Chicago' date)"
+          echo "============================================"
