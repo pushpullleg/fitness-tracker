@@ -1,9 +1,16 @@
+// ============================================
+// CONFIGURATION & INITIALIZATION
+// ============================================
+
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const { Pool } = require('pg');
 
-// SendGrid client (initialize only if module is available)
+const app = express();
+const port = process.env.PORT || 3000;
+
+// SendGrid Email Client (safe initialization)
 let sgMail = null;
 try {
   sgMail = require('@sendgrid/mail');
@@ -18,25 +25,22 @@ try {
   console.warn('⚠️  Email notifications will be disabled');
 }
 
-const app = express();
-const port = process.env.PORT || 3000;
-
-// Database connection with error handling and connection limits
+// Database connection pool (optimized for Vercel serverless)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  max: 1, // Limit to 1 connection for serverless (Vercel)
+  max: 1, // Limit to 1 connection for serverless environment
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
-  allowExitOnIdle: true, // Allow process to exit when pool is idle
+  allowExitOnIdle: true, // Allow process to exit when idle
 });
 
-// Handle pool errors to prevent crashes
+// Handle pool errors gracefully
 pool.on('error', (err, client) => {
   console.error('Unexpected database error:', err.message);
   console.log('Database connection will be retried on next request');
 });
 
-// Gist URLs to poll
+// GitHub Gist URLs to poll for fitness data
 const GIST_URLS = [
   'https://gist.github.com/pushpullleg/9c7ab834aa55e54fa70f61d501bf019d',
   'https://gist.github.com/pushpullleg/b2ff0075e1556c7b39d6f1bbc9860a90',
@@ -44,14 +48,26 @@ const GIST_URLS = [
   'https://gist.github.com/pushpullleg/5a8d4b337f4e2c5916559b193dc5b1c4'
 ];
 
-// Function to normalize member names
+// ============================================
+// DATA PROCESSING FUNCTIONS
+// ============================================
+
+/**
+ * Normalize member names to ensure consistency
+ * @param {string} name - Raw member name from gist
+ * @returns {string} - Normalized name with proper capitalization
+ */
 function normalizeMemberName(name) {
   if (!name) return 'Unknown';
   return name.trim().toLowerCase()
     .replace(/\b\w/g, l => l.toUpperCase()); // Capitalize first letter of each word
 }
 
-// Function to fetch data from a gist
+/**
+ * Fetch raw data from a GitHub Gist
+ * @param {string} gistUrl - Full URL to the gist
+ * @returns {object|null} - Parsed JSON data or null on error
+ */
 async function fetchGistData(gistUrl) {
   try {
     console.log(`Fetching data from: ${gistUrl}`);
@@ -68,7 +84,10 @@ async function fetchGistData(gistUrl) {
   }
 }
 
-// Function to process logs from a gist
+/**
+ * Process and store logs from a single gist
+ * @param {string} gistUrl - URL of gist to process
+ */
 async function processGistLogs(gistUrl) {
   const data = await fetchGistData(gistUrl);
   if (!data) return;
@@ -130,7 +149,10 @@ async function processGistLogs(gistUrl) {
   }
 }
 
-// Main polling function
+/**
+ * Poll all GitHub Gists and store new activities
+ * This runs every 15 minutes via GitHub Actions
+ */
 async function pollAllGists() {
   console.log(`Starting to poll ${GIST_URLS.length} gists...`);
   
@@ -145,7 +167,11 @@ async function pollAllGists() {
   console.log('Polling cycle completed');
 }
 
-// CORS middleware (must be before routes)
+// ============================================
+// MIDDLEWARE
+// ============================================
+
+// CORS configuration (allow requests from GitHub Pages)
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
@@ -157,7 +183,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Root endpoint
+// ============================================
+// API ENDPOINTS
+// ============================================
+
+// Root endpoint - API information
 app.get('/', (req, res) => {
   res.json({
     message: '🏃‍♂️ Fittober Fitness Tracker API',
@@ -371,7 +401,15 @@ app.post('/api/webhook', async (req, res) => {
   }
 });
 
-// Daily email digest endpoint (triggered by cron job at 9 PM CST)
+// ============================================
+// EMAIL DIGEST ENDPOINTS
+// ============================================
+
+/**
+ * Send daily email digest to all team members
+ * Triggered by GitHub Actions at 9 PM CST
+ * GET /api/send-digest
+ */
 app.get('/api/send-digest', async (req, res) => {
   console.log('📧 Email digest triggered at:', new Date().toISOString());
   
@@ -459,7 +497,10 @@ app.get('/api/send-digest', async (req, res) => {
   }
 });
 
-// Test endpoint - sends email to only Mukesh for testing
+/**
+ * Test endpoint - sends digest email to only one recipient (for testing)
+ * GET /api/test-digest
+ */
 app.get('/api/test-digest', async (req, res) => {
   console.log('📧 TEST Email digest triggered at:', new Date().toISOString());
   
@@ -538,7 +579,18 @@ app.get('/api/test-digest', async (req, res) => {
   }
 });
 
-// Helper function to generate email HTML
+// ============================================
+// EMAIL TEMPLATE FUNCTIONS
+// ============================================
+
+/**
+ * Generate HTML email for daily digest
+ * @param {Array} todayActivities - Activities logged today
+ * @param {Array} teamStandings - Overall team standings
+ * @param {number} totalMinutes - Total minutes by all members
+ * @param {number} daysRemaining - Days until challenge ends
+ * @returns {string} - HTML email template
+ */
 function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining) {
   // Group today's activities by member
   const activitiesByMember = {};
