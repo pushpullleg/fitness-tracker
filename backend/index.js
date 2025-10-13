@@ -421,9 +421,9 @@ app.get('/api/send-digest', async (req, res) => {
       });
     }
 
-    // Get today's activities (since midnight)
+    // Get activities from last 24 hours
     const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    todayStart.setHours(todayStart.getHours() - 24); // Last 24 hours
     
     const activitiesQuery = `
       SELECT member, activity, duration_min, ts as timestamp
@@ -512,9 +512,9 @@ app.get('/api/test-digest', async (req, res) => {
       });
     }
 
-    // Get today's activities (since midnight)
+    // Get activities from last 24 hours
     const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    todayStart.setHours(todayStart.getHours() - 24); // Last 24 hours
     
     const activitiesQuery = `
       SELECT member, activity, duration_min, ts as timestamp
@@ -626,14 +626,15 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
       const time = new Date(activity.timestamp).toLocaleTimeString('en-US', { 
         hour: 'numeric', 
         minute: '2-digit',
-        hour12: true 
+        hour12: true,
+        timeZone: 'America/Chicago' // CST timezone
       });
       activitiesHtml += `<li style="margin: 5px 0;">${activity.activity} - ${activity.duration_min} mins (${time})</li>`;
     });
     
     activitiesHtml += `
         </ul>
-        <p style="margin: 10px 0 0 0; font-weight: bold; color: #FFC333;">Total today: ${todayTotals[member]} mins</p>
+        <p style="margin: 10px 0 0 0; font-weight: bold; color: #FFC333;">Total in last 24 hours: ${todayTotals[member]} mins</p>
       </div>
     `;
   });
