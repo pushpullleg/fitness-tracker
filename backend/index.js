@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const { Pool } = require('pg');
-const twilio = require('twilio');
 
 // SendGrid client (initialize only if module is available)
 let sgMail = null;
@@ -36,19 +35,6 @@ pool.on('error', (err, client) => {
   console.error('Unexpected database error:', err.message);
   console.log('Database connection will be retried on next request');
 });
-
-// Twilio client (initialize only if credentials exist)
-let client = null;
-if (process.env.TWILIO_SID && process.env.TWILIO_TOKEN) {
-  try {
-    client = twilio(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
-    console.log('✅ Twilio client initialized');
-  } catch (error) {
-    console.error('❌ Failed to initialize Twilio client:', error.message);
-  }
-} else {
-  console.warn('⚠️  Twilio credentials not found - SMS notifications will be disabled');
-}
 
 // Gist URLs to poll
 const GIST_URLS = [
@@ -133,38 +119,9 @@ async function processGistLogs(gistUrl) {
         JSON.stringify(log)
       ]);
 
-      // If a new record was inserted, send SMS notification
+      // If a new record was inserted, log it
       if (result.rows.length > 0) {
-        console.log(`New activity logged: ${member} - ${activity} (${duration} min)`);
-        
-        // Send SMS to multiple team members
-        const recipients = process.env.TWILIO_TO 
-          ? process.env.TWILIO_TO.split(',').map(num => num.trim())
-          : [];
-        
-        if (client && recipients.length > 0 && process.env.TWILIO_FROM) {
-          try {
-            const notificationPromises = recipients.map(async (recipient) => {
-              try {
-                await client.messages.create({
-                  from: process.env.TWILIO_FROM,
-                  to: recipient,
-                  body: `🏋️ ${member} completed ${duration} minutes of ${activity}!`,
-                });
-                console.log(`SMS notification sent to ${recipient}`);
-              } catch (error) {
-                console.error(`Error sending SMS to ${recipient}:`, error.message);
-              }
-            });
-            
-            await Promise.all(notificationPromises);
-            console.log(`SMS notifications sent to ${recipients.length} team members`);
-          } catch (smsError) {
-            console.error('Error sending SMS messages:', smsError.message);
-          }
-        } else {
-          console.log('SMS notifications skipped - missing Twilio configuration');
-        }
+        console.log(`✅ New activity logged: ${member} - ${activity} (${duration} min)`);
       }
 
     } catch (error) {
