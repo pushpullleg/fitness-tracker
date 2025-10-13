@@ -1,504 +1,1005 @@
-<div align="center"># ‍♂️ Fittober Fitness Tracker
+<div align="center"><div align="center"># ‍♂️ Fittober Fitness Tracker
 
 
 
-# Fitness TrackerA real-time fitness tracking dashboard for **The Excel-erators** team challenge (October 1-31, 2025). Track activities, visualize progress, and stay motivated with automated daily email digests!
+# Fitness Tracker
 
 
 
-**A serverless fitness tracking system for the Fittober 2025 challenge**[![Live Dashboard](https://img.shields.io/badge/Live-Dashboard-blue?style=for-the-badge)](https://pushpullleg.github.io/fitness-tracker/)
+**A serverless fitness tracking system for the Fittober 2025 challenge**# Fitness TrackerA real-time fitness tracking dashboard for **The Excel-erators** team challenge (October 1-31, 2025). Track activities, visualize progress, and stay motivated with automated daily email digests!
 
-[![API Status](https://img.shields.io/badge/API-Online-success?style=for-the-badge)](https://fitness-tracker-flame-kappa.vercel.app/)
+
 
 [![Live Dashboard](https://img.shields.io/badge/Live-Dashboard-brightgreen?style=flat-square)](https://pushpullleg.github.io/fitness-tracker)
 
-[![API Status](https://img.shields.io/badge/API-Online-success?style=flat-square)](https://fitness-tracker-flame-kappa.vercel.app)---
+[![API Status](https://img.shields.io/badge/API-Online-success?style=flat-square)](https://fitness-tracker-flame-kappa.vercel.app)
 
-[![Node Version](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Node Version](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)**A serverless fitness tracking system for the Fittober 2025 challenge**[![Live Dashboard](https://img.shields.io/badge/Live-Dashboard-blue?style=for-the-badge)](https://pushpullleg.github.io/fitness-tracker/)
 
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)## 📚 Documentation
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
+[![API Status](https://img.shields.io/badge/API-Online-success?style=for-the-badge)](https://fitness-tracker-flame-kappa.vercel.app/)
 
+[Overview](#overview) • [Features](#features) • [Getting Started](#getting-started) • [Architecture](#architecture) • [API](#api-reference) • [Deployment](#deployment)
 
-[Overview](#overview) • [Features](#features) • [Getting Started](#getting-started) • [Architecture](#architecture) • [API](#api-reference) • [Deployment](#deployment)- **[Setup Guide](./SETUP.md)** - Complete installation and deployment instructions
-
-- **[Email Setup](./EMAIL_SETUP.md)** - SendGrid configuration for daily digests
-
-![Dashboard Preview](https://via.placeholder.com/800x400/4CAF50/FFFFFF?text=Fitness+Tracker+Dashboard)- **[Project Journey](./PROJECT_JOURNEY.md)** - What we tried, what worked, and lessons learned
-
-- **[Contributing](./CONTRIBUTING.md)** - How to add screenshots, diagrams, and improvements
+[![Live Dashboard](https://img.shields.io/badge/Live-Dashboard-brightgreen?style=flat-square)](https://pushpullleg.github.io/fitness-tracker)
 
 </div>
 
----
+[![API Status](https://img.shields.io/badge/API-Online-success?style=flat-square)](https://fitness-tracker-flame-kappa.vercel.app)---
 
 ---
 
-## 🌟 Overview
+[![Node Version](https://img.shields.io/badge/Node.js-22.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
 
 ## Overview
 
-Fittober is a comprehensive fitness tracking system that:
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)## 📚 Documentation
 
 Fitness Tracker is a comprehensive activity monitoring system built for the **Fittober 2025 challenge** at Texas A&M University Commerce. The application combines real-time data visualization, automated email digests, and team leaderboards to encourage daily fitness activities throughout October 2025.
 
----- **Polls 4 GitHub Gists** every 60 seconds for new fitness activities
+
 
 The system automatically collects activity data from GitHub Gists, processes it through a serverless backend, stores it in PostgreSQL, and provides an interactive dashboard with daily email summaries sent at 2 PM CST.
 
-- **Stores data** in PostgreSQL with smart deduplication
+[Overview](#overview) • [Features](#features) • [Getting Started](#getting-started) • [Architecture](#architecture) • [API](#api-reference) • [Deployment](#deployment)- **[Setup Guide](./SETUP.md)** - Complete installation and deployment instructions
 
 > [!TIP]
 
-> You can view the live dashboard at [pushpullleg.github.io/fitness-tracker](https://pushpullleg.github.io/fitness-tracker) to see real-time activity tracking in action.## 📊 Features- **Sends WhatsApp notifications** to team group for each new activity
+> You can view the live dashboard at [pushpullleg.github.io/fitness-tracker](https://pushpullleg.github.io/fitness-tracker) to see real-time activity tracking in action.- **[Email Setup](./EMAIL_SETUP.md)** - SendGrid configuration for daily digests
 
 
 
-### Key Highlights- **Provides a beautiful dashboard** showing team progress with interactive charts
+### Key Highlights![Dashboard Preview](https://via.placeholder.com/800x400/4CAF50/FFFFFF?text=Fitness+Tracker+Dashboard)- **[Project Journey](./PROJECT_JOURNEY.md)** - What we tried, what worked, and lessons learned
 
 
 
-- **Serverless Architecture**: Fully hosted on Vercel Functions and GitHub Pages with zero infrastructure management- **📈 Real-Time Dashboard**: Interactive doughnut chart showing team progress- **Handles real-time updates** with automatic refresh every minute
+- **Serverless Architecture**: Fully hosted on Vercel Functions and GitHub Pages with zero infrastructure management- **[Contributing](./CONTRIBUTING.md)** - How to add screenshots, diagrams, and improvements
 
 - **Real-time Synchronization**: Activity data updates every 15 minutes via GitHub Actions
 
-- **Daily Email Digests**: Automated summaries with embedded charts using SendGrid (free tier: 100 emails/day)- **📧 Daily Email Digests**: Automated emails at 2 PM CST with embedded dashboard
+- **Daily Email Digests**: Automated summaries with embedded charts using SendGrid (free tier: 100 emails/day)</div>
 
 - **PostgreSQL Database**: Reliable data storage on Supabase with optimized connection pooling for serverless environments
 
-- **Team Challenge**: Tracks 4 team members competing in the month-long Fittober challenge- **🔄 Automatic Updates**: Polls GitHub Gists every 15 minutes for new activities## 🏗️ Architecture
+- **Team Challenge**: Tracks 4 team members competing in the month-long Fittober challenge---
 
 
 
-## Features- **📱 Mobile Responsive**: Beautiful UI on all devices
+## Features---
 
 
 
-### Core Functionality- **☁️ Serverless Architecture**: Zero-cost infrastructure on free tiers```
+### Core Functionality## 🌟 Overview
 
 
 
-- **Activity Tracking**: Automatic data collection from 4 GitHub Gists with 15-minute polling intervals┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+- **Activity Tracking**: Automatic data collection from 4 GitHub Gists with 15-minute polling intervals## Overview
 
 - **Interactive Dashboard**: Real-time visualization using Chart.js 4.4.0 with doughnut charts showing activity distribution
 
-- **Team Leaderboard**: Live rankings displaying total minutes and member standings---│   GitHub Gists  │───▶│  Node.js Backend│───▶│  PostgreSQL DB  │
+- **Team Leaderboard**: Live rankings displaying total minutes and member standingsFittober is a comprehensive fitness tracking system that:
 
 - **Daily Email Digests**: Automated reports at 2 PM CST (20:00 UTC) with:
 
-  - Last 24 hours activity summary│   (4 sources)   │    │  (Express API)  │    │  (Activities)   │
+  - Last 24 hours activity summaryFitness Tracker is a comprehensive activity monitoring system built for the **Fittober 2025 challenge** at Texas A&M University Commerce. The application combines real-time data visualization, automated email digests, and team leaderboards to encourage daily fitness activities throughout October 2025.
 
   - Individual member breakdowns
 
-  - Embedded QuickChart.io visualizations## 🚀 Live Demo└─────────────────┘    └─────────────────┘    └─────────────────┘
+  - Embedded QuickChart.io visualizations---- **Polls 4 GitHub Gists** every 60 seconds for new fitness activities
 
   - Timezone-aware timestamps (CST)
 
-- **RESTful API**: Complete endpoints for activity management and email testing                                │
+- **RESTful API**: Complete endpoints for activity management and email testingThe system automatically collects activity data from GitHub Gists, processes it through a serverless backend, stores it in PostgreSQL, and provides an interactive dashboard with daily email summaries sent at 2 PM CST.
 
 
 
-### Technical Capabilities**Dashboard:** https://pushpullleg.github.io/fitness-tracker/                                  ▼
+### Technical Capabilities- **Stores data** in PostgreSQL with smart deduplication
 
 
 
-- **Serverless Deployment**: Optimized for Vercel Functions with 1-connection PostgreSQL pool**API:** https://fitness-tracker-flame-kappa.vercel.app/api/aggregates.json                       ┌─────────────────┐    ┌─────────────────┐
+- **Serverless Deployment**: Optimized for Vercel Functions with 1-connection PostgreSQL pool> [!TIP]
 
 - **Automated Workflows**: GitHub Actions for data polling and scheduled email delivery
 
-- **Responsive Design**: Mobile-friendly interface accessible from any device                       │  WhatsApp API   │    │  Frontend       │
+- **Responsive Design**: Mobile-friendly interface accessible from any device (desktop, tablet, mobile)> You can view the live dashboard at [pushpullleg.github.io/fitness-tracker](https://pushpullleg.github.io/fitness-tracker) to see real-time activity tracking in action.## 📊 Features- **Sends WhatsApp notifications** to team group for each new activity
 
 - **Error Handling**: Comprehensive logging and graceful degradation for failed operations
 
-- **Email Rate Limiting**: Compatible with SendGrid free tier (100 emails/day)---                       │  (Twilio)       │    │  (Chart.js)     │
+- **Email Rate Limiting**: Compatible with SendGrid free tier (100 emails/day)
+
+- **Smart Deduplication**: Prevents duplicate entries using database constraints
+
+### Key Highlights- **Provides a beautiful dashboard** showing team progress with interactive charts
+
+## Getting Started
 
 
 
-## Getting Started                       └─────────────────┘    └─────────────────┘
+### Prerequisites
 
-
-
-### Prerequisites## 👥 Team Members```
-
-
+- **Serverless Architecture**: Fully hosted on Vercel Functions and GitHub Pages with zero infrastructure management- **📈 Real-Time Dashboard**: Interactive doughnut chart showing team progress- **Handles real-time updates** with automatic refresh every minute
 
 Before you begin, ensure you have the following accounts and tools:
 
+- **Real-time Synchronization**: Activity data updates every 15 minutes via GitHub Actions
 
+**Required Tools:**
 
-- **Node.js** 22.x or higher ([download](https://nodejs.org))| Member | Total Minutes | Badge |## 📁 Project Structure
+- **Node.js** 22.x or higher ([download](https://nodejs.org))- **Daily Email Digests**: Automated summaries with embedded charts using SendGrid (free tier: 100 emails/day)- **📧 Daily Email Digests**: Automated emails at 2 PM CST with embedded dashboard
 
-- **GitHub** account with repository access
+- **Git** for version control
 
-- **Vercel** account for backend deployment ([sign up](https://vercel.com))|--------|--------------|-------|
+- **PostgreSQL Database**: Reliable data storage on Supabase with optimized connection pooling for serverless environments
+
+**Required Accounts (all free tier available):**
+
+- **GitHub** account with repository access- **Team Challenge**: Tracks 4 team members competing in the month-long Fittober challenge- **🔄 Automatic Updates**: Polls GitHub Gists every 15 minutes for new activities## 🏗️ Architecture
+
+- **Vercel** account for backend deployment ([sign up](https://vercel.com))
 
 - **Supabase** account for PostgreSQL database ([sign up](https://supabase.com))
 
-- **SendGrid** account with API key ([sign up](https://sendgrid.com) - free tier available)| Mukesh Ravichandran | 735 min | 🥇 |```
+- **SendGrid** account with API key ([sign up](https://sendgrid.com) - 100 emails/day free)
 
-- **4 GitHub Gists** containing activity log data
+## Features- **📱 Mobile Responsive**: Beautiful UI on all devices
 
-| Tejaswini Damodara Kannan | 345 min | 🥈 |fitness-tracker/
+**Data Source:**
+
+- **4 GitHub Gists** containing activity log data in JSON format
+
+
+
+**Browser Support (Frontend):**### Core Functionality- **☁️ Serverless Architecture**: Zero-cost infrastructure on free tiers```
+
+- Chrome 60+, Firefox 55+, Safari 12+, Edge 79+
+
+
 
 ### Quick Start
 
-| Jaahnavi Garikipati | 285 min | 🥉 |├── backend/
+- **Activity Tracking**: Automatic data collection from 4 GitHub Gists with 15-minute polling intervals┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 
 1. **Clone the repository**
 
-| Trisha Harjono | 255 min | 📊 |│   ├── index.js              # Main server application
+- **Interactive Dashboard**: Real-time visualization using Chart.js 4.4.0 with doughnut charts showing activity distribution
 
    ```bash
 
-   git clone https://github.com/pushpullleg/fitness-tracker.git│   ├── package.json          # Node.js dependencies
+   git clone https://github.com/pushpullleg/fitness-tracker.git- **Team Leaderboard**: Live rankings displaying total minutes and member standings---│   GitHub Gists  │───▶│  Node.js Backend│───▶│  PostgreSQL DB  │
 
    cd fitness-tracker
 
-   ```**Team Total:** 1,620 minutes 💪│   ├── database.sql          # PostgreSQL schema
+   ```- **Daily Email Digests**: Automated reports at 2 PM CST (20:00 UTC) with:
 
 
 
-2. **Set up the database**│   ├── env.example           # Environment variables template
+2. **Set up the database**  - Last 24 hours activity summary│   (4 sources)   │    │  (Express API)  │    │  (Activities)   │
 
 
 
-   Create a Supabase project and execute the schema:---│   └── README.md             # Backend setup guide
+   Create a Supabase project and execute the schema:  - Individual member breakdowns
 
 
 
-   ```bash├── frontend/
+   ```bash  - Embedded QuickChart.io visualizations## 🚀 Live Demo└─────────────────┘    └─────────────────┘    └─────────────────┘
 
    # Copy the schema from backend/database.sql to Supabase SQL Editor
 
-   # Run the queries to create the activities table## 🏗️ Architecture│   ├── index.html            # Dashboard web page
+   # Run the queries to create the activities table with indexes  - Timezone-aware timestamps (CST)
 
    ```
 
-│   └── README.md             # Frontend deployment guide
+- **RESTful API**: Complete endpoints for activity management and email testing                                │
 
 3. **Configure environment variables**
 
-```└── README.md                 # This file
+
 
    ```bash
 
-   cd backend┌─────────────────┐```
+   cd backend### Technical Capabilities**Dashboard:** https://pushpullleg.github.io/fitness-tracker/                                  ▼
 
    cp env.example .env
 
-   ```│  GitHub Gists   │  (4 data sources - team members log activities)
+   ```
 
 
 
-   Edit `.env` with your credentials:│  (Raw Data)     │## 🚀 Quick Start
+   Edit `.env` with your credentials:- **Serverless Deployment**: Optimized for Vercel Functions with 1-connection PostgreSQL pool**API:** https://fitness-tracker-flame-kappa.vercel.app/api/aggregates.json                       ┌─────────────────┐    ┌─────────────────┐
 
 
 
-   ```env└────────┬────────┘
+   ```env- **Automated Workflows**: GitHub Actions for data polling and scheduled email delivery
 
    DATABASE_URL=postgresql://user:pass@host:5432/database
 
-   SENDGRID_API_KEY=your_sendgrid_api_key         │### Prerequisites
+   SENDGRID_API_KEY=your_sendgrid_api_key- **Responsive Design**: Mobile-friendly interface accessible from any device                       │  WhatsApp API   │    │  Frontend       │
 
    GIST_URL_MUKESH=https://gist.githubusercontent.com/...
 
-   GIST_URL_TEJASWINI=https://gist.githubusercontent.com/...         ▼- Node.js 18+
+   GIST_URL_TEJASWINI=https://gist.githubusercontent.com/...- **Error Handling**: Comprehensive logging and graceful degradation for failed operations
 
    GIST_URL_JAAHNAVI=https://gist.githubusercontent.com/...
 
-   GIST_URL_TRISHA=https://gist.githubusercontent.com/...┌─────────────────────────────────────────┐- PostgreSQL 12+
+   GIST_URL_TRISHA=https://gist.githubusercontent.com/...- **Email Rate Limiting**: Compatible with SendGrid free tier (100 emails/day)---                       │  (Twilio)       │    │  (Chart.js)     │
 
    ```
 
-│  GitHub Actions (every 15 min)         │- Twilio Account
+
 
 4. **Install dependencies and start**
 
-│  - Polls Gists                          │- GitHub account (for hosting frontend)
+## Getting Started                       └─────────────────┘    └─────────────────┘
 
    ```bash
 
-   npm install│  - Stores in Database                   │
+   npm install
 
    npm start
 
-   ```│  - Triggers Email (2 PM CST)           │### 1. Backend Setup
+   ```### Prerequisites## 👥 Team Members```
 
 
 
-   The API will be available at `http://localhost:3000`└────────┬────────────────────────────────┘
+   The API will be available at `http://localhost:3000`
 
 
 
-> [!NOTE]         │```bash
+5. **Open the frontend**Before you begin, ensure you have the following accounts and tools:
+
+
+
+   Simply open `index.html` in your browser, or serve it locally:
+
+
+
+   ```bash- **Node.js** 22.x or higher ([download](https://nodejs.org))| Member | Total Minutes | Badge |## 📁 Project Structure
+
+   # Using Python
+
+   python -m http.server 8000- **GitHub** account with repository access
+
+
+
+   # Using Node.js http-server- **Vercel** account for backend deployment ([sign up](https://vercel.com))|--------|--------------|-------|
+
+   npx http-server
+
+   ```- **Supabase** account for PostgreSQL database ([sign up](https://supabase.com))
+
+
+
+> [!NOTE]- **SendGrid** account with API key ([sign up](https://sendgrid.com) - free tier available)| Mukesh Ravichandran | 735 min | 🥇 |```
 
 > For complete setup instructions including Vercel deployment, GitHub Actions configuration, and SendGrid email setup, see the [SETUP.md](./SETUP.md) guide.
 
-         ▼cd backend
+- **4 GitHub Gists** containing activity log data
 
 ## Architecture
 
-┌─────────────────┐     ┌──────────────────┐npm install
+| Tejaswini Damodara Kannan | 345 min | 🥈 |fitness-tracker/
 
 ### System Design
 
-│  Backend API    │────▶│  Supabase        │cp env.example .env
+### Quick Start
 
 The application follows a serverless architecture with clear separation of concerns:
 
-│  (Vercel)       │     │  (PostgreSQL)    │# Edit .env with your database and Twilio credentials
+| Jaahnavi Garikipati | 285 min | 🥉 |├── backend/
 
 ```
 
-┌─────────────────────────────────────────────────────────────┐│  Node.js/Express│     │  Session Mode    │npm start
+┌─────────────────────────────────────────────────────────────┐1. **Clone the repository**
 
 │                   Fitness Tracker System                     │
 
-├─────────────────────────────────────────────────────────────┤└────────┬────────┘     └──────────────────┘```
+├─────────────────────────────────────────────────────────────┤| Trisha Harjono | 255 min | 📊 |│   ├── index.js              # Main server application
 
 │                                                               │
 
-│  ┌──────────────┐         ┌──────────────┐                  │         │
+│  ┌──────────────┐         ┌──────────────┐                  │   ```bash
 
 │  │   Frontend   │◄────────┤   Backend    │                  │
 
-│  │  (GitHub     │  HTTPS  │   (Vercel    │                  │         ├──────────────────────┬─────────────────────┐### 2. Database Setup
+│  │  (GitHub     │  HTTPS  │   (Vercel    │                  │   git clone https://github.com/pushpullleg/fitness-tracker.git│   ├── package.json          # Node.js dependencies
 
 │  │   Pages)     │         │  Functions)  │                  │
 
-│  └──────────────┘         └──────┬───────┘                  │         ▼                      ▼                     ▼
+│  └──────────────┘         └──────┬───────┘                  │   cd fitness-tracker
 
 │                                   │ PostgreSQL               │
 
-│                           ┌───────▼───────┐                  │┌─────────────────┐   ┌──────────────────┐  ┌──────────────────┐```bash
+│                           ┌───────▼───────┐                  │   ```**Team Total:** 1,620 minutes 💪│   ├── database.sql          # PostgreSQL schema
 
 │                           │   Supabase    │                  │
 
-│                           │  (Session     │                  ││  Frontend       │   │  Email Digest    │  │  REST API        │# Create database and run schema
+│                           │  (Session     │                  │
 
 │                           │   Mode)       │                  │
 
-│                           └───────────────┘                  ││  (GitHub Pages) │   │  (SendGrid)      │  │  /aggregates.json│psql -d your_database -f database.sql
+│                           └───────────────┘                  │2. **Set up the database**│   ├── env.example           # Environment variables template
 
 │                                                               │
 
-│  ┌──────────────┐         ┌──────────────┐                  ││  Chart.js UI    │   │  Daily @ 9 PM    │  │  /health         │```
+│  ┌──────────────┐         ┌──────────────┐                  │
 
 │  │   GitHub     │────────►│   SendGrid   │                  │
 
-│  │   Actions    │  Cron   │    Email     │                  │└─────────────────┘   └──────────────────┘  └──────────────────┘
+│  │   Actions    │  Cron   │    Email     │                  │   Create a Supabase project and execute the schema:---│   └── README.md             # Backend setup guide
 
 │  │  (Scheduler) │         │   Service    │                  │
 
-│  └──────────────┘         └──────────────┘                  │```### 3. Frontend Deployment
+│  └──────────────┘         └──────────────┘                  │
 
 │                                                               │
 
-│  ┌──────────────┐                                            │
+│  ┌──────────────┐                                            │   ```bash├── frontend/
 
 │  │   GitHub     │────────► Data Source (4 Gists)            │
 
-│  │    Gists     │                                            │---**Option A: GitHub Pages**
+│  │    Gists     │                                            │   # Copy the schema from backend/database.sql to Supabase SQL Editor
 
 │  └──────────────┘                                            │
 
-│                                                               │1. Upload `frontend/index.html` to a GitHub repository
+│                                                               │   # Run the queries to create the activities table## 🏗️ Architecture│   ├── index.html            # Dashboard web page
 
 └─────────────────────────────────────────────────────────────┘
 
-```## 🛠️ Tech Stack2. Enable GitHub Pages in repository settings
+```   ```
 
 
 
-### Data Flow3. Update backend URL in the HTML file
+### Data Flow│   └── README.md             # Frontend deployment guide
 
 
 
-1. **Data Collection**: Team members log activities in individual GitHub Gists (plain text format)### Frontend
+1. **Data Collection**: Team members log activities in individual GitHub Gists (JSON format)3. **Configure environment variables**
 
 2. **Automated Polling**: GitHub Actions workflow runs every 15 minutes to trigger `/api/poll-activities`
 
-3. **Data Processing**: Backend fetches Gists via `axios`, normalizes member names, parses activity logs- **HTML/CSS/JavaScript** - Static site**Option B: Local Development**
+3. **Data Processing**: Backend fetches Gists via `axios`, normalizes member names, parses activity logs```└── README.md                 # This file
 
-4. **Database Storage**: Processed activities stored in Supabase PostgreSQL with timestamps and metadata
+4. **Database Storage**: Processed activities stored in Supabase PostgreSQL with timestamps and smart deduplication
 
-5. **Visualization**: Frontend queries `/api/activities` and renders charts using Chart.js- **Chart.js 4.4.0** - Doughnut chart with data labels1. Open `frontend/index.html` in a web browser
+5. **Visualization**: Frontend queries `/api/activities` and renders charts using Chart.js   ```bash
 
 6. **Email Digest**: Daily workflow at 2 PM CST calls `/api/send-digest` to generate emails with QuickChart.io embedded charts
 
-- **GitHub Pages** - Free hosting2. Ensure backend is running on localhost:3000
+   cd backend┌─────────────────┐```
 
 ### Technology Stack
 
-
+   cp env.example .env
 
 **Frontend**
 
-- HTML5, CSS3, JavaScript (ES6+)### Backend## 📊 Features
+- HTML5, CSS3, JavaScript (ES6+)   ```│  GitHub Gists   │  (4 data sources - team members log activities)
 
 - Chart.js 4.4.0 for interactive visualizations
 
-- GitHub Pages for static hosting- **Node.js 22.x** - Runtime
+- GitHub Pages for static hosting
 
+- Responsive design with mobile support
 
+   Edit `.env` with your credentials:│  (Raw Data)     │## 🚀 Quick Start
 
-**Backend**- **Express 4.18** - Web framework### Backend Features
+**Backend**
 
 - Node.js 22.x with Express.js framework
 
-- PostgreSQL via `pg` library (Session Mode connection)- **PostgreSQL** - Database (via Supabase)- ✅ **Real-time Polling**: Fetches data from 4 GitHub Gists every 60 seconds
+- PostgreSQL via `pg` library (Session Mode connection)
 
-- SendGrid `@sendgrid/mail` ^7.7.0 for email delivery
+- SendGrid `@sendgrid/mail` ^7.7.0 for email delivery   ```env└────────┬────────┘
 
-- Vercel serverless functions with optimized connection pooling- **Vercel** - Serverless deployment- ✅ **Smart Deduplication**: Prevents duplicate entries using unique constraints
+- Vercel serverless functions with optimized connection pooling
 
+   DATABASE_URL=postgresql://user:pass@host:5432/database
 
+**DevOps & Automation**
 
-**DevOps & Automation**- ✅ **WhatsApp Integration**: Sends notifications via Twilio for each new activity
+- GitHub Actions for cron-based scheduling   SENDGRID_API_KEY=your_sendgrid_api_key         │### Prerequisites
 
-- GitHub Actions for cron-based scheduling
+- Vercel for continuous deployment
 
-- Vercel for continuous deployment### Email & Automation- ✅ **RESTful API**: Provides `/aggregates.json` endpoint for frontend
-
-- QuickChart.io API for email chart rendering
-
-- **SendGrid** - Email service (100 emails/day free tier)- ✅ **Error Handling**: Comprehensive error handling and logging
-
-**Dependencies**
-
-```json- **GitHub Actions** - Cron jobs (polling + email)- ✅ **Production Ready**: Environment-based configuration and graceful shutdown
-
-{
-
-  "@sendgrid/mail": "^7.7.0",- **QuickChart.io** - Chart embedding in emails
-
-  "axios": "^1.6.0",
-
-  "dotenv": "^16.3.1",### Frontend Features
-
-  "express": "^4.18.2",
-
-  "pg": "^8.11.3"### Data Sources- ✅ **Interactive Charts**: Beautiful pie chart showing team member contributions
-
-}
-
-```- **4 GitHub Gists** - Team members log activities manually- ✅ **Real-time Updates**: Auto-refreshes data every 60 seconds
+- QuickChart.io API for email chart rendering   GIST_URL_MUKESH=https://gist.githubusercontent.com/...
 
 
 
-## API Reference- ✅ **Responsive Design**: Works on desktop, tablet, and mobile
-
-
-
-### Base URL---- ✅ **Modern UI**: Gradient design with smooth animations
-
-
-
-**Production**: `https://fitness-tracker-flame-kappa.vercel.app`  - ✅ **Error Handling**: Graceful error states with retry functionality
-
-**Development**: `http://localhost:3000`
-
-## 📦 Project Structure
-
-### Endpoints
-
-### Data Processing
-
-#### Health Check
-
-```- ✅ **Member Name Normalization**: Consistent formatting across sources
-
-```http
-
-GET /fitness-tracker/- ✅ **Flexible Data Structure**: Handles different gist formats
-
-```
-
-├── .github/- ✅ **Cumulative Totals**: Accurate tracking of total minutes per member
-
-Returns API status and basic information.
-
-│   └── workflows/- ✅ **Activity Logging**: Complete audit trail with timestamps
-
-**Response**
-
-```json│       ├── poll-gists.yml        # Polls gists every 15 min
-
-{
-
-  "message": "Fitness Tracker API",│       └── email-digest.yml      # Sends email daily at 2 PM CST## 📱 WhatsApp Notifications
-
-  "status": "healthy",
-
-  "timestamp": "2025-01-28T14:00:00.000Z"├── api/
-
-}
-
-```│   └── index.js                  # Vercel serverless entry pointEach new fitness activity triggers a WhatsApp message to the "Fittober" group:
-
-
-
-#### Get All Activities├── backend/
-
-
-
-```http│   ├── index.js                  # Main Express application```
-
-GET /api/activities
-
-```│   ├── package.json              # Backend dependenciesJohn Doe completed 30 minutes of Running.
-
-
-
-Retrieves all activities from the database, ordered by timestamp (most recent first).│   ├── database.sql              # PostgreSQL schemaJane Smith completed 45 minutes of Cycling.
-
-
-
-**Response**│   ├── env.example               # Environment template```
+**Dependencies**   GIST_URL_TEJASWINI=https://gist.githubusercontent.com/...         ▼- Node.js 18+
 
 ```json
 
-[│   └── test-email.js             # Email testing utility
+{   GIST_URL_JAAHNAVI=https://gist.githubusercontent.com/...
 
-  {
+  "@sendgrid/mail": "^7.7.0",
 
-    "id": 123,├── index.html                    # Frontend dashboard### Setup Instructions
+  "axios": "^1.6.0",   GIST_URL_TRISHA=https://gist.githubusercontent.com/...┌─────────────────────────────────────────┐- PostgreSQL 12+
 
-    "member_name": "Mukesh",
+  "dotenv": "^16.3.1",
 
-    "activity_type": "Running",├── package.json                  # Root dependencies (for Vercel)1. Create Twilio account and enable WhatsApp Sandbox
+  "express": "^4.18.2",   ```
 
-    "duration_minutes": 45,
+  "pg": "^8.11.3"
 
-    "activity_date": "2025-01-28T19:47:00.000Z",├── vercel.json                   # Vercel configuration2. Create WhatsApp group named "Fittober"
-
-    "created_at": "2025-01-28T19:50:00.000Z"
-
-  }├── SETUP.md                      # Complete setup guide3. Add Twilio sandbox number to the group
-
-]
-
-```├── EMAIL_SETUP.md                # Detailed email guide4. Configure environment variables with your credentials
-
-
-
-#### Get Leaderboard└── README.md                     # This file
-
-
-
-```http```## 🎯 Data Sources
-
-GET /api/leaderboard
+}│  GitHub Actions (every 15 min)         │- Twilio Account
 
 ```
 
+4. **Install dependencies and start**
+
+## API Reference
+
+│  - Polls Gists                          │- GitHub account (for hosting frontend)
+
+### Base URL
+
+   ```bash
+
+**Production**: `https://fitness-tracker-flame-kappa.vercel.app`  
+
+**Development**: `http://localhost:3000`   npm install│  - Stores in Database                   │
 
 
-Returns team rankings with total minutes per member.---The system polls these 4 GitHub Gists:
+
+### Endpoints   npm start
 
 
 
-**Response**1. https://gist.github.com/pushpullleg/9c7ab834aa55e54fa70f61d501bf019d
+#### Health Check   ```│  - Triggers Email (2 PM CST)           │### 1. Backend Setup
+
+
+
+```http
+
+GET /
+
+```   The API will be available at `http://localhost:3000`└────────┬────────────────────────────────┘
+
+
+
+Returns API status and basic information.
+
+
+
+**Response**> [!NOTE]         │```bash
+
+```json
+
+{> For complete setup instructions including Vercel deployment, GitHub Actions configuration, and SendGrid email setup, see the [SETUP.md](./SETUP.md) guide.
+
+  "message": "Fitness Tracker API",
+
+  "status": "healthy",         ▼cd backend
+
+  "timestamp": "2025-10-12T14:00:00.000Z"
+
+}## Architecture
+
+```
+
+┌─────────────────┐     ┌──────────────────┐npm install
+
+#### Get All Activities
+
+### System Design
+
+```http
+
+GET /api/activities│  Backend API    │────▶│  Supabase        │cp env.example .env
+
+```
+
+The application follows a serverless architecture with clear separation of concerns:
+
+Retrieves all activities from the database, ordered by timestamp (most recent first).
+
+│  (Vercel)       │     │  (PostgreSQL)    │# Edit .env with your database and Twilio credentials
+
+**Response**
+
+```json```
+
+[
+
+  {┌─────────────────────────────────────────────────────────────┐│  Node.js/Express│     │  Session Mode    │npm start
+
+    "id": 123,
+
+    "member_name": "Mukesh",│                   Fitness Tracker System                     │
+
+    "activity_type": "Running",
+
+    "duration_minutes": 45,├─────────────────────────────────────────────────────────────┤└────────┬────────┘     └──────────────────┘```
+
+    "activity_date": "2025-10-12T19:47:00.000Z",
+
+    "created_at": "2025-10-12T19:50:00.000Z"│                                                               │
+
+  }
+
+]│  ┌──────────────┐         ┌──────────────┐                  │         │
+
+```
+
+│  │   Frontend   │◄────────┤   Backend    │                  │
+
+#### Get Leaderboard
+
+│  │  (GitHub     │  HTTPS  │   (Vercel    │                  │         ├──────────────────────┬─────────────────────┐### 2. Database Setup
+
+```http
+
+GET /api/leaderboard│  │   Pages)     │         │  Functions)  │                  │
+
+```
+
+│  └──────────────┘         └──────┬───────┘                  │         ▼                      ▼                     ▼
+
+Returns team rankings with total minutes per member.
+
+│                                   │ PostgreSQL               │
+
+**Response**
+
+```json│                           ┌───────▼───────┐                  │┌─────────────────┐   ┌──────────────────┐  ┌──────────────────┐```bash
+
+[
+
+  {│                           │   Supabase    │                  │
+
+    "member_name": "Mukesh",
+
+    "total_minutes": 735,│                           │  (Session     │                  ││  Frontend       │   │  Email Digest    │  │  REST API        │# Create database and run schema
+
+    "activity_count": 42
+
+  },│                           │   Mode)       │                  │
+
+  {
+
+    "member_name": "Tejaswini",│                           └───────────────┘                  ││  (GitHub Pages) │   │  (SendGrid)      │  │  /aggregates.json│psql -d your_database -f database.sql
+
+    "total_minutes": 345,
+
+    "activity_count": 28│                                                               │
+
+  }
+
+]│  ┌──────────────┐         ┌──────────────┐                  ││  Chart.js UI    │   │  Daily @ 9 PM    │  │  /health         │```
+
+```
+
+│  │   GitHub     │────────►│   SendGrid   │                  │
+
+#### Poll Activities
+
+│  │   Actions    │  Cron   │    Email     │                  │└─────────────────┘   └──────────────────┘  └──────────────────┘
+
+```http
+
+POST /api/poll-activities│  │  (Scheduler) │         │   Service    │                  │
+
+```
+
+│  └──────────────┘         └──────────────┘                  │```### 3. Frontend Deployment
+
+Manually triggers data collection from all GitHub Gists. Automatically called by GitHub Actions every 15 minutes.
+
+│                                                               │
+
+**Response**
+
+```json│  ┌──────────────┐                                            │
+
+{
+
+  "message": "Activities polled successfully",│  │   GitHub     │────────► Data Source (4 Gists)            │
+
+  "newActivities": 3
+
+}│  │    Gists     │                                            │---**Option A: GitHub Pages**
+
+```
+
+│  └──────────────┘                                            │
+
+#### Test Email Digest
+
+│                                                               │1. Upload `frontend/index.html` to a GitHub repository
+
+```http
+
+POST /api/test-digest└─────────────────────────────────────────────────────────────┘
+
+```
+
+```## 🛠️ Tech Stack2. Enable GitHub Pages in repository settings
+
+Sends a test email digest to verify SendGrid configuration and email templates.
+
+
+
+**Response**
+
+```json### Data Flow3. Update backend URL in the HTML file
+
+{
+
+  "message": "Test email sent successfully",
+
+  "timestamp": "2025-10-12T20:00:00.000Z"
+
+}1. **Data Collection**: Team members log activities in individual GitHub Gists (plain text format)### Frontend
+
+```
+
+2. **Automated Polling**: GitHub Actions workflow runs every 15 minutes to trigger `/api/poll-activities`
+
+#### Send Daily Digest
+
+3. **Data Processing**: Backend fetches Gists via `axios`, normalizes member names, parses activity logs- **HTML/CSS/JavaScript** - Static site**Option B: Local Development**
+
+```http
+
+POST /api/send-digest4. **Database Storage**: Processed activities stored in Supabase PostgreSQL with timestamps and metadata
+
+```
+
+5. **Visualization**: Frontend queries `/api/activities` and renders charts using Chart.js- **Chart.js 4.4.0** - Doughnut chart with data labels1. Open `frontend/index.html` in a web browser
+
+Generates and sends daily digest emails to all team members. Automatically triggered by GitHub Actions at 2 PM CST (20:00 UTC).
+
+6. **Email Digest**: Daily workflow at 2 PM CST calls `/api/send-digest` to generate emails with QuickChart.io embedded charts
+
+**Response**
+
+```json- **GitHub Pages** - Free hosting2. Ensure backend is running on localhost:3000
+
+{
+
+  "message": "Daily digest sent to all members",### Technology Stack
+
+  "emailsSent": 4
+
+}
+
+```
+
+**Frontend**
+
+> [!WARNING]
+
+> The `/api/send-digest` endpoint should only be called once per day to avoid exceeding SendGrid's free tier limit of 100 emails/day.- HTML5, CSS3, JavaScript (ES6+)### Backend## 📊 Features
+
+
+
+## Deployment- Chart.js 4.4.0 for interactive visualizations
+
+
+
+### Backend Deployment (Vercel)- GitHub Pages for static hosting- **Node.js 22.x** - Runtime
+
+
+
+1. **Install Vercel CLI**
+
+
+
+   ```bash**Backend**- **Express 4.18** - Web framework### Backend Features
+
+   npm install -g vercel
+
+   ```- Node.js 22.x with Express.js framework
+
+
+
+2. **Deploy to Vercel**- PostgreSQL via `pg` library (Session Mode connection)- **PostgreSQL** - Database (via Supabase)- ✅ **Real-time Polling**: Fetches data from 4 GitHub Gists every 60 seconds
+
+
+
+   ```bash- SendGrid `@sendgrid/mail` ^7.7.0 for email delivery
+
+   cd backend
+
+   vercel --prod- Vercel serverless functions with optimized connection pooling- **Vercel** - Serverless deployment- ✅ **Smart Deduplication**: Prevents duplicate entries using unique constraints
+
+   ```
+
+
+
+3. **Set environment variables** in Vercel dashboard:
+
+   - `DATABASE_URL` - Supabase PostgreSQL connection string (Session Mode, port 5432)**DevOps & Automation**- ✅ **WhatsApp Integration**: Sends notifications via Twilio for each new activity
+
+   - `SENDGRID_API_KEY` - SendGrid API key for email delivery
+
+   - `GIST_URL_MUKESH` - GitHub Gist URL for Mukesh's activities- GitHub Actions for cron-based scheduling
+
+   - `GIST_URL_TEJASWINI` - GitHub Gist URL for Tejaswini's activities
+
+   - `GIST_URL_JAAHNAVI` - GitHub Gist URL for Jaahnavi's activities- Vercel for continuous deployment### Email & Automation- ✅ **RESTful API**: Provides `/aggregates.json` endpoint for frontend
+
+   - `GIST_URL_TRISHA` - GitHub Gist URL for Trisha's activities
+
+- QuickChart.io API for email chart rendering
+
+### Frontend Deployment (GitHub Pages)
+
+- **SendGrid** - Email service (100 emails/day free tier)- ✅ **Error Handling**: Comprehensive error handling and logging
+
+1. **Enable GitHub Pages** in repository settings
+
+2. Select `main` branch and root directory as source**Dependencies**
+
+3. The dashboard will be available at `https://<username>.github.io/<repository>`
+
+4. **Update backend URL** in `index.html`:```json- **GitHub Actions** - Cron jobs (polling + email)- ✅ **Production Ready**: Environment-based configuration and graceful shutdown
+
+   ```javascript
+
+   const API_BASE_URL = 'https://fitness-tracker-flame-kappa.vercel.app';{
+
+   ```
+
+  "@sendgrid/mail": "^7.7.0",- **QuickChart.io** - Chart embedding in emails
+
+### GitHub Actions Configuration
+
+  "axios": "^1.6.0",
+
+Two automated workflows are configured in `.github/workflows/`:
+
+  "dotenv": "^16.3.1",### Frontend Features
+
+**Data Polling** (`poll-activities.yml`)
+
+```yaml  "express": "^4.18.2",
+
+schedule:
+
+  - cron: '*/15 * * * *'  # Every 15 minutes  "pg": "^8.11.3"### Data Sources- ✅ **Interactive Charts**: Beautiful pie chart showing team member contributions
+
+```
+
+}
+
+**Daily Email Digest** (`email-digest.yml`)
+
+```yaml```- **4 GitHub Gists** - Team members log activities manually- ✅ **Real-time Updates**: Auto-refreshes data every 60 seconds
+
+schedule:
+
+  - cron: '0 20 * * *'  # 2 PM CST (20:00 UTC)
+
+```
+
+## API Reference- ✅ **Responsive Design**: Works on desktop, tablet, and mobile
+
+> [!IMPORTANT]
+
+> You must add `VERCEL_API_URL` as a GitHub repository secret for workflows to function correctly. Set it to your deployed Vercel backend URL.
+
+
+
+### Alternative Deployment Options### Base URL---- ✅ **Modern UI**: Gradient design with smooth animations
+
+
+
+**Backend alternatives:**
+
+- Heroku (with Heroku Postgres addon)
+
+- Google Cloud Run**Production**: `https://fitness-tracker-flame-kappa.vercel.app`  - ✅ **Error Handling**: Graceful error states with retry functionality
+
+- Railway
+
+- Render**Development**: `http://localhost:3000`
+
+
+
+**Frontend alternatives:**## 📦 Project Structure
+
+- Netlify
+
+- Vercel### Endpoints
+
+- CloudFlare Pages
+
+### Data Processing
+
+See [SETUP.md](./SETUP.md) for detailed deployment instructions for each platform.
+
+#### Health Check
+
+## Documentation
+
+```- ✅ **Member Name Normalization**: Consistent formatting across sources
+
+- **[SETUP.md](./SETUP.md)** - Complete deployment guide with step-by-step instructions for all platforms
+
+- **[EMAIL_SETUP.md](./EMAIL_SETUP.md)** - SendGrid configuration and email template customization```http
+
+- **[PROJECT_JOURNEY.md](./PROJECT_JOURNEY.md)** - Development history, challenges faced, and lessons learned
+
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Guidelines for adding features, screenshots, and documentationGET /fitness-tracker/- ✅ **Flexible Data Structure**: Handles different gist formats
+
+
+
+## Troubleshooting```
+
+
+
+### Common Issues├── .github/- ✅ **Cumulative Totals**: Accurate tracking of total minutes per member
+
+
+
+**Database Connection Errors**Returns API status and basic information.
+
+- Ensure Supabase connection string uses Session Mode (port 5432, not 6543)
+
+- Verify `max: 1` and `allowExitOnIdle: true` in PostgreSQL pool configuration for serverless│   └── workflows/- ✅ **Activity Logging**: Complete audit trail with timestamps
+
+- Check database credentials and network access
+
+**Response**
+
+**Email Not Sending**
+
+- Check SendGrid API key validity in Vercel environment variables```json│       ├── poll-gists.yml        # Polls gists every 15 min
+
+- Verify sender email is authenticated in SendGrid dashboard
+
+- Confirm you haven't exceeded 100 emails/day free tier limit{
+
+- Check application logs in Vercel for specific SendGrid errors
+
+  "message": "Fitness Tracker API",│       └── email-digest.yml      # Sends email daily at 2 PM CST## 📱 WhatsApp Notifications
+
+**GitHub Actions Failing**
+
+- Verify `VERCEL_API_URL` secret is set correctly in repository settings  "status": "healthy",
+
+- Check workflow logs in Actions tab for specific error messages
+
+- Ensure Vercel backend is deployed and accessible  "timestamp": "2025-01-28T14:00:00.000Z"├── api/
+
+
+
+**Frontend Not Loading Data**}
+
+- Verify backend URL is correct in `index.html`
+
+- Check browser console for CORS or network errors```│   └── index.js                  # Vercel serverless entry pointEach new fitness activity triggers a WhatsApp message to the "Fittober" group:
+
+- Test API endpoints directly in browser or Postman
+
+- Ensure backend is deployed and running
+
+
+
+**Timestamp Display Issues**#### Get All Activities├── backend/
+
+- Email times are displayed in CST timezone (`America/Chicago`)
+
+- "Last 24 Hours" represents a rolling 24-hour window from current time
+
+- Frontend displays timestamps in user's local timezone
+
+```http│   ├── index.js                  # Main Express application```
+
+**Chart Not Rendering**
+
+- Check browser console for JavaScript errorsGET /api/activities
+
+- Verify Chart.js CDN is loading properly
+
+- Ensure data format from API matches expected structure```│   ├── package.json              # Backend dependenciesJohn Doe completed 30 minutes of Running.
+
+- Clear browser cache and reload
+
+
+
+For additional help, see the comprehensive [troubleshooting guide](./SETUP.md#troubleshooting) in SETUP.md.
+
+Retrieves all activities from the database, ordered by timestamp (most recent first).│   ├── database.sql              # PostgreSQL schemaJane Smith completed 45 minutes of Cycling.
+
+## Performance & Security
+
+
+
+### Performance Optimizations
+
+- **Database Indexing**: Optimized indexes on member names and timestamps**Response**│   ├── env.example               # Environment template```
+
+- **Connection Pooling**: Efficient PostgreSQL connection management for serverless
+
+- **CDN Resources**: Chart.js loaded via CDN for fast delivery```json
+
+- **Lightweight Frontend**: Single HTML file under 50KB
+
+[│   └── test-email.js             # Email testing utility
+
+### Security Considerations
+
+- **Environment Variables**: All sensitive data stored in environment variables (never committed)  {
+
+- **HTTPS**: All production deployments use HTTPS
+
+- **CORS**: Backend properly configured for frontend domain access    "id": 123,├── index.html                    # Frontend dashboard### Setup Instructions
+
+- **Input Validation**: Backend validates and sanitizes all input data
+
+- **Rate Limiting**: SendGrid free tier naturally limits email sending    "member_name": "Mukesh",
+
+
+
+## Team    "activity_type": "Running",├── package.json                  # Root dependencies (for Vercel)1. Create Twilio account and enable WhatsApp Sandbox
+
+
+
+Built by students at **Texas A&M University Commerce** for the Fittober 2025 challenge:    "duration_minutes": 45,
+
+
+
+- Mukesh Ravichandran    "activity_date": "2025-01-28T19:47:00.000Z",├── vercel.json                   # Vercel configuration2. Create WhatsApp group named "Fittober"
+
+- Tejaswini
+
+- Jaahnavi    "created_at": "2025-01-28T19:50:00.000Z"
+
+- Trisha
+
+  }├── SETUP.md                      # Complete setup guide3. Add Twilio sandbox number to the group
+
+**Challenge Details**  
+
+Event: Fittober 2025  ]
+
+Duration: October 1-31, 2025  
+
+Institution: Texas A&M University Commerce  ```├── EMAIL_SETUP.md                # Detailed email guide4. Configure environment variables with your credentials
+
+Goal: Track and encourage daily fitness activities
+
+
+
+## Acknowledgments
+
+#### Get Leaderboard└── README.md                     # This file
+
+- [Chart.js](https://www.chartjs.org/) for beautiful data visualization
+
+- [SendGrid](https://sendgrid.com/) for reliable email delivery
+
+- [Supabase](https://supabase.com/) for PostgreSQL hosting
+
+- [Vercel](https://vercel.com/) for serverless deployment```http```## 🎯 Data Sources
+
+- [QuickChart.io](https://quickchart.io/) for email chart rendering
+
+- [GitHub Actions](https://github.com/features/actions) for workflow automationGET /api/leaderboard
+
+
+
+---```
+
+
+
+<div align="center">
+
+
+
+**[View Live Dashboard](https://pushpullleg.github.io/fitness-tracker)** • **[API Documentation](https://fitness-tracker-flame-kappa.vercel.app)**Returns team rankings with total minutes per member.---The system polls these 4 GitHub Gists:
+
+
+
+Made with ❤️ for Fittober 2025
+
+
+
+</div>**Response**1. https://gist.github.com/pushpullleg/9c7ab834aa55e54fa70f61d501bf019d
+
 
 ```json
 
