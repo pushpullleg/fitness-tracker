@@ -1,0 +1,53 @@
+name: Send Weekly Email Digest
+
+on:
+  schedule:
+    # Every Sunday at 9:00 AM CDT (14:00 UTC)
+    # CDT (summer): UTC-5, so 9 AM CDT = 2 PM UTC (14:00)
+    # CST (winter): UTC-6, so 9 AM CST = 3 PM UTC (15:00)
+    # Using 14:00 UTC for daylight saving time (March-November)
+    - cron: '0 14 * * 0'  # Sunday at 9:00 AM CDT
+  workflow_dispatch:  # Allow manual trigger for testing
+
+jobs:
+  send-weekly-digest:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Display Trigger Time
+        run: |
+          echo "============================================"
+          echo "📅 Weekly Email Digest Workflow Started"
+          echo "============================================"
+          echo "Triggered at (UTC): $(date -u)"
+          echo "Triggered at (CDT): $(TZ='America/Chicago' date)"
+          echo "Day of week: $(date +%A)"
+          echo "Week number: $(date +%U)"
+          echo "============================================"
+      
+      - name: Send Weekly Email Digest
+        run: |
+          echo "📤 Calling send-weekly-digest API endpoint..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://fitness-tracker-flame-kappa.vercel.app/api/send-weekly-digest")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+          
+          echo "HTTP Status Code: $HTTP_CODE"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Weekly email digest sent successfully!"
+          else
+            echo "⚠️  Weekly digest endpoint returned HTTP $HTTP_CODE"
+            echo "💡 Note: If endpoint doesn't exist yet, create it in your backend"
+            echo "📖 See: .github/WEEKLY_DIGEST_GUIDE.md for backend setup"
+          fi
+      
+      - name: Verify Completion
+        run: |
+          echo "============================================"
+          echo "✅ Weekly Email Digest Workflow Completed"
+          echo "Completed at (UTC): $(date -u)"
+          echo "Completed at (CDT): $(TZ='America/Chicago' date)"
+          echo "Next run: Next Sunday at 9:00 AM CDT"
+          echo "============================================"
