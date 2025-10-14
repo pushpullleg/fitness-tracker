@@ -26,7 +26,7 @@ jobs:
       - name: Send Email Digest
         run: |
           echo "📤 Calling send-digest API endpoint..."
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://fitness-tracker-flame-kappa.vercel.app/api/send-digest")
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "https://fitness-tracker-flame-kappa.vercel.app/api/send-digest")
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
           

@@ -407,10 +407,14 @@ app.post('/api/webhook', async (req, res) => {
 
 /**
  * Send daily email digest to all team members
- * Triggered by GitHub Actions at 9 PM CST
- * GET /api/send-digest
+ * Triggered by GitHub Actions at 2 PM CDT
+ * GET/POST /api/send-digest
  */
-app.get('/api/send-digest', async (req, res) => {
+app.route('/api/send-digest')
+  .get(sendDigestHandler)
+  .post(sendDigestHandler);
+
+async function sendDigestHandler(req, res) {
   console.log('📧 Email digest triggered at:', new Date().toISOString());
   
   try {
@@ -495,7 +499,7 @@ app.get('/api/send-digest', async (req, res) => {
       message: error.message
     });
   }
-});
+}
 
 /**
  * Test endpoint - sends digest email to only one recipient (for testing)
