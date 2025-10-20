@@ -1,7 +1,7 @@
 name: Auto Refresh Fitness Data
 
 # This GitHub Action automatically fetches new fitness data every 15 minutes
-# It calls the /api/poll-activities endpoint which:
+# It calls the /api/refresh endpoint which:
 # - Fetches data from all 4 GitHub Gists
 # - Updates the Supabase database with new activities
 
@@ -47,5 +47,6 @@ jobs:
       - name: 📈 Verify API Health
         run: |
           echo "🔍 Checking API health..."
-          curl -s https://fitness-tracker-flame-kappa.vercel.app/health | jq '.'
+          curl -s https://fitness-tracker-flame-kappa.vercel.app/api/health
+          echo ""
           echo "✅ Health check complete"
