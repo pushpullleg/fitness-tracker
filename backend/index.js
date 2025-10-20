@@ -26,19 +26,38 @@ try {
 }
 
 // Database connection pool (optimized for Vercel serverless)
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 1, // Limit to 1 connection for serverless environment
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
-  allowExitOnIdle: true, // Allow process to exit when idle
-});
+// Guard creation so module import doesn't throw during Vercel build/runtime
+let pool = null;
+try {
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL not set - DB features will be disabled at runtime');
+  } else {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 1, // Limit to 1 connection for serverless environment
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      allowExitOnIdle: true, // Allow process to exit when idle
+    });
 
-// Handle pool errors gracefully
-pool.on('error', (err, client) => {
-  console.error('Unexpected database error:', err.message);
-  console.log('Database connection will be retried on next request');
-});
+    // Handle pool errors gracefully
+    pool.on('error', (err, client) => {
+      console.error('Unexpected database error:', err.message);
+      console.log('Database connection will be retried on next request');
+    });
+  }
+} catch (err) {
+  console.error('❌ Failed to initialize DB pool at module load:', err.message);
+  pool = null;
+}
+
+// Helper to run queries or fail with a clear error if DB is not configured
+async function dbQuery(queryText, params = []) {
+  if (!pool) {
+    throw new Error('Database not configured (DATABASE_URL missing or pool failed to initialize)');
+  }
+  return pool.query(queryText, params);
+}
 
 // GitHub Gist URLs to poll for fitness data
 const GIST_URLS = [
@@ -128,7 +147,7 @@ async function processGistLogs(gistUrl) {
         RETURNING uid
       `;
       
-      const result = await pool.query(insertQuery, [
+      const result = await dbQuery(insertQuery, [
         logId.toString(),
         member,
         activity,
@@ -251,7 +270,7 @@ app.get('/health', (req, res) => {
 // Debug endpoint to test database connection
 app.get('/api/debug/db', async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW() as current_time, COUNT(*) as activity_count FROM activities');
+  const result = await dbQuery('SELECT NOW() as current_time, COUNT(*) as activity_count FROM activities');
     res.json({
       success: true,
       dbConnected: true,
@@ -279,7 +298,7 @@ app.get('/aggregates.json', async (req, res) => {
       ORDER BY total_min DESC
     `;
     
-    const memberTotals = await pool.query(memberTotalsQuery);
+  const memberTotals = await dbQuery(memberTotalsQuery);
 
     // Get overall total
     const overallTotalQuery = `
@@ -287,7 +306,7 @@ app.get('/aggregates.json', async (req, res) => {
       FROM activities
     `;
     
-    const overallTotal = await pool.query(overallTotalQuery);
+  const overallTotal = await dbQuery(overallTotalQuery);
 
     res.json({
       members: memberTotals.rows,
@@ -334,14 +353,14 @@ app.get('/api/aggregates.json', async (req, res) => {
       ORDER BY total_min DESC
     `;
     
-    const memberTotals = await pool.query(memberTotalsQuery);
+  const memberTotals = await dbQuery(memberTotalsQuery);
 
     const overallTotalQuery = `
       SELECT SUM(duration_min) as total_min 
       FROM activities
     `;
     
-    const overallTotal = await pool.query(overallTotalQuery);
+  const overallTotal = await dbQuery(overallTotalQuery);
 
     res.json({
       members: memberTotals.rows,
@@ -370,7 +389,7 @@ app.get('/api/recent', async (req, res) => {
       LIMIT $1
     `;
     
-    const result = await pool.query(recentActivitiesQuery, [limit]);
+  const result = await dbQuery(recentActivitiesQuery, [limit]);
 
     res.json({
       activities: result.rows,
@@ -527,7 +546,7 @@ async function sendDigestHandler(req, res) {
       ORDER BY ts DESC
     `;
     
-    const activitiesResult = await pool.query(activitiesQuery, [todayStart]);
+  const activitiesResult = await dbQuery(activitiesQuery, [todayStart]);
     const todayActivities = activitiesResult.rows;
 
     // Get overall team standings
@@ -538,7 +557,7 @@ async function sendDigestHandler(req, res) {
       ORDER BY total_minutes DESC
     `;
     
-    const standingsResult = await pool.query(standingsQuery);
+  const standingsResult = await dbQuery(standingsQuery);
     const teamStandings = standingsResult.rows;
     
     const totalMinutes = teamStandings.reduce((sum, m) => sum + parseInt(m.total_minutes), 0);
@@ -618,7 +637,7 @@ app.get('/api/test-digest', async (req, res) => {
       ORDER BY ts DESC
     `;
     
-    const activitiesResult = await pool.query(activitiesQuery, [todayStart]);
+  const activitiesResult = await dbQuery(activitiesQuery, [todayStart]);
     const todayActivities = activitiesResult.rows;
 
     // Get overall team standings
@@ -629,7 +648,7 @@ app.get('/api/test-digest', async (req, res) => {
       ORDER BY total_minutes DESC
     `;
     
-    const standingsResult = await pool.query(standingsQuery);
+  const standingsResult = await dbQuery(standingsQuery);
     const teamStandings = standingsResult.rows;
     
     const totalMinutes = teamStandings.reduce((sum, m) => sum + parseInt(m.total_minutes), 0);
