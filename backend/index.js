@@ -239,8 +239,33 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    gists: GIST_URLS.length
+    gists: GIST_URLS.length,
+    environment: {
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      hasSendGridKey: !!process.env.SENDGRID_API_KEY,
+      nodeEnv: process.env.NODE_ENV || 'not set'
+    }
   });
+});
+
+// Debug endpoint to test database connection
+app.get('/api/debug/db', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as current_time, COUNT(*) as activity_count FROM activities');
+    res.json({
+      success: true,
+      dbConnected: true,
+      currentTime: result.rows[0].current_time,
+      activityCount: result.rows[0].activity_count
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      dbConnected: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
 });
 
 // Aggregates endpoint
