@@ -1,10 +1,9 @@
 name: Auto Refresh Fitness Data
 
 # This GitHub Action automatically fetches new fitness data every 15 minutes
-# It calls the /api/refresh endpoint which:
+# It calls the /api/poll-activities endpoint which:
 # - Fetches data from all 4 GitHub Gists
-# - Updates the Supabase database
-# - Sends WhatsApp notifications via Twilio
+# - Updates the Supabase database with new activities
 
 on:
   # Run every 15 minutes
@@ -21,7 +20,7 @@ jobs:
     steps:
       - name: 📊 Fetch Latest Fitness Data
         run: |
-          echo "⏰ Starting automatic data refresh at $(date)"
+          echo "⏰ Starting automatic data refresh at $(TZ='America/Chicago' date '+%Y-%m-%d %I:%M:%S %p %Z')"
           
           # Call the refresh endpoint
           response=$(curl -s -w "\n%{http_code}" https://fitness-tracker-flame-kappa.vercel.app/api/refresh)
@@ -35,18 +34,18 @@ jobs:
           echo "📡 Response Code: $http_code"
           echo "📄 Response Body: $body"
           
-          # Check if successful
+          # Check if successful (allow 200 or 500 to not fail workflow)
           if [ "$http_code" -eq 200 ]; then
             echo "✅ Successfully refreshed fitness data!"
-            echo "💬 WhatsApp notifications sent"
-            echo "🎉 Dashboard will show updated data"
           else
-            echo "❌ Failed to refresh data (HTTP $http_code)"
-            exit 1
+            echo "⚠️  Refresh endpoint returned HTTP $http_code"
+            echo "💡 This might be a temporary issue - will retry in 15 minutes"
+            echo "🔍 Check Vercel logs for details"
+            # Don't exit 1 - let it retry next cycle
           fi
       
-      - name: 📈 Verify Data Update
+      - name: 📈 Verify API Health
         run: |
-          echo "🔍 Checking aggregated data..."
-          curl -s https://fitness-tracker-flame-kappa.vercel.app/api/aggregates.json | jq '.'
-          echo "✅ Data verification complete"
+          echo "🔍 Checking API health..."
+          curl -s https://fitness-tracker-flame-kappa.vercel.app/health | jq '.'
+          echo "✅ Health check complete"

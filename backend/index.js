@@ -89,15 +89,16 @@ async function fetchGistData(gistUrl) {
  * @param {string} gistUrl - URL of gist to process
  */
 async function processGistLogs(gistUrl) {
+  const stats = { newRecords: 0, duplicates: 0 };
   const data = await fetchGistData(gistUrl);
-  if (!data) return;
+  if (!data) return stats;
 
   // Handle different data structures
   const logs = data.logs || data.activities || (Array.isArray(data) ? data : []);
   
   if (!Array.isArray(logs)) {
     console.log(`No logs array found in gist: ${gistUrl}`);
-    return;
+    return stats;
   }
 
   console.log(`Processing ${logs.length} logs from ${gistUrl}`);
@@ -140,13 +141,18 @@ async function processGistLogs(gistUrl) {
 
       // If a new record was inserted, log it
       if (result.rows.length > 0) {
+        stats.newRecords++;
         console.log(`✅ New activity logged: ${member} - ${activity} (${duration} min)`);
+      } else {
+        stats.duplicates++;
       }
 
     } catch (error) {
       console.error('Error processing individual log:', error.message);
     }
   }
+  
+  return stats;
 }
 
 /**
@@ -154,17 +160,45 @@ async function processGistLogs(gistUrl) {
  * This runs every 15 minutes via GitHub Actions
  */
 async function pollAllGists() {
-  console.log(`Starting to poll ${GIST_URLS.length} gists...`);
+  console.log(`🔍 Starting to poll ${GIST_URLS.length} gists...`);
+  const startTime = Date.now();
+  const stats = {
+    totalGists: GIST_URLS.length,
+    processed: 0,
+    errors: 0,
+    newRecords: 0,
+    duplicates: 0
+  };
   
   for (const gistUrl of GIST_URLS) {
     try {
-      await processGistLogs(gistUrl);
+      console.log(`📝 Processing: ${gistUrl}`);
+      const gistStartTime = Date.now();
+      
+      const result = await processGistLogs(gistUrl);
+      const gistDuration = Date.now() - gistStartTime;
+      
+      stats.processed++;
+      if (result && result.newRecords) {
+        stats.newRecords += result.newRecords;
+      }
+      if (result && result.duplicates) {
+        stats.duplicates += result.duplicates;
+      }
+      
+      console.log(`✅ Gist processed in ${gistDuration}ms - ${result ? result.newRecords : 0} new, ${result ? result.duplicates : 0} duplicates`);
     } catch (error) {
-      console.error(`Error processing gist ${gistUrl}:`, error.message);
+      stats.errors++;
+      console.error(`❌ Error processing gist ${gistUrl}:`, error.message);
+      console.error('Stack:', error.stack);
     }
   }
   
-  console.log('Polling cycle completed');
+  const totalDuration = Date.now() - startTime;
+  console.log(`🏁 Polling cycle completed in ${totalDuration}ms`);
+  console.log(`📊 Stats:`, stats);
+  
+  return stats;
 }
 
 // ============================================
@@ -329,42 +363,74 @@ app.get('/api/recent', async (req, res) => {
 
 // Manual refresh endpoint to trigger data fetch
 app.post('/api/refresh', async (req, res) => {
+  const startTime = Date.now();
   try {
-    console.log('🔄 Manual refresh triggered');
-    await pollAllGists();
+    console.log('🔄 Manual refresh triggered at:', new Date().toISOString());
+    console.log('📍 Environment check:');
+    console.log('  - DATABASE_URL configured:', !!process.env.DATABASE_URL);
+    console.log('  - GIST_URLS count:', GIST_URLS.length);
+    
+    const result = await pollAllGists();
+    const duration = Date.now() - startTime;
+    
+    console.log(`✅ Refresh completed in ${duration}ms`);
     
     res.json({ 
       success: true,
       message: 'Data refreshed successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      duration: `${duration}ms`,
+      stats: result
     });
   } catch (error) {
-    console.error('Error during manual refresh:', error);
+    const duration = Date.now() - startTime;
+    console.error('❌ Error during manual refresh:', error);
+    console.error('Stack trace:', error.stack);
+    console.error(`Failed after ${duration}ms`);
+    
     res.status(500).json({ 
       success: false,
       error: 'Failed to refresh data',
-      message: error.message 
+      message: error.message,
+      duration: `${duration}ms`,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
 
 // GET version of refresh for easier testing
 app.get('/api/refresh', async (req, res) => {
+  const startTime = Date.now();
   try {
-    console.log('🔄 Manual refresh triggered (GET)');
-    await pollAllGists();
+    console.log('🔄 Manual refresh triggered (GET) at:', new Date().toISOString());
+    console.log('📍 Environment check:');
+    console.log('  - DATABASE_URL configured:', !!process.env.DATABASE_URL);
+    console.log('  - GIST_URLS count:', GIST_URLS.length);
+    
+    const result = await pollAllGists();
+    const duration = Date.now() - startTime;
+    
+    console.log(`✅ Refresh completed in ${duration}ms`);
     
     res.json({ 
       success: true,
       message: 'Data refreshed successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      duration: `${duration}ms`,
+      stats: result
     });
   } catch (error) {
-    console.error('Error during manual refresh:', error);
+    const duration = Date.now() - startTime;
+    console.error('❌ Error during manual refresh:', error);
+    console.error('Stack trace:', error.stack);
+    console.error(`Failed after ${duration}ms`);
+    
     res.status(500).json({ 
       success: false,
       error: 'Failed to refresh data',
-      message: error.message 
+      message: error.message,
+      duration: `${duration}ms`,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });

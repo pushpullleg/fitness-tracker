@@ -27,8 +27,8 @@ jobs:
       
       - name: Send Weekly Email Digest
         run: |
-          echo "📤 Calling send-weekly-digest API endpoint..."
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://fitness-tracker-flame-kappa.vercel.app/api/send-weekly-digest")
+          echo "📤 Calling send-digest API endpoint (weekly trigger)..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X GET "https://fitness-tracker-flame-kappa.vercel.app/api/send-digest")
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
           
@@ -37,10 +37,11 @@ jobs:
           
           if [ "$HTTP_CODE" -eq 200 ]; then
             echo "✅ Weekly email digest sent successfully!"
+            echo "📝 Note: Currently using daily digest endpoint (last 24 hours)"
+            echo "💡 To send 7-day summary, create /api/send-weekly-digest endpoint"
           else
-            echo "⚠️  Weekly digest endpoint returned HTTP $HTTP_CODE"
-            echo "💡 Note: If endpoint doesn't exist yet, create it in your backend"
-            echo "📖 See: .github/WEEKLY_DIGEST_GUIDE.md for backend setup"
+            echo "❌ Failed to send weekly digest. HTTP $HTTP_CODE"
+            exit 1
           fi
       
       - name: Verify Completion
