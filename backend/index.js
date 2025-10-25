@@ -562,13 +562,22 @@ async function sendDigestHandler(req, res) {
     
     const totalMinutes = teamStandings.reduce((sum, m) => sum + parseInt(m.total_minutes), 0);
 
+    // Calculate team total for last 24 hours
+    const last24HoursQuery = `
+      SELECT COALESCE(SUM(duration_min), 0) as total_24h
+      FROM activities
+      WHERE ts >= $1
+    `;
+    const last24HoursResult = await dbQuery(last24HoursQuery, [todayStart]);
+    const last24HoursTotal = parseInt(last24HoursResult.rows[0].total_24h);
+
     // Calculate days remaining
     const challengeEnd = new Date('2025-10-31T23:59:59');
     const now = new Date();
     const daysRemaining = Math.ceil((challengeEnd - now) / (1000 * 60 * 60 * 24));
 
     // Generate HTML email
-    const emailHtml = generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining);
+    const emailHtml = generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining, last24HoursTotal);
 
     // Send email to all team members
     const recipients = process.env.EMAIL_RECIPIENTS 
@@ -653,13 +662,22 @@ app.get('/api/test-digest', async (req, res) => {
     
     const totalMinutes = teamStandings.reduce((sum, m) => sum + parseInt(m.total_minutes), 0);
 
+    // Calculate team total for last 24 hours
+    const last24HoursQuery = `
+      SELECT COALESCE(SUM(duration_min), 0) as total_24h
+      FROM activities
+      WHERE ts >= $1
+    `;
+    const last24HoursResult = await dbQuery(last24HoursQuery, [todayStart]);
+    const last24HoursTotal = parseInt(last24HoursResult.rows[0].total_24h);
+
     // Calculate days remaining
     const challengeEnd = new Date('2025-10-31T23:59:59');
     const now = new Date();
     const daysRemaining = Math.ceil((challengeEnd - now) / (1000 * 60 * 60 * 24));
 
     // Generate HTML email
-    const emailHtml = generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining);
+    const emailHtml = generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining, last24HoursTotal);
 
     // Send email ONLY to Mukesh for testing
     const testRecipient = process.env.SENDGRID_FROM_EMAIL || 'mravichandr@leomail.tamuc.edu';
@@ -705,7 +723,7 @@ app.get('/api/test-digest', async (req, res) => {
  * @param {number} daysRemaining - Days until challenge ends
  * @returns {string} - HTML email template
  */
-function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining) {
+function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysRemaining, last24HoursTotal) {
   // Group today's activities by member
   const activitiesByMember = {};
   todayActivities.forEach(activity => {
@@ -731,9 +749,9 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
     const firstName = member.split(' ')[0];
     
     activitiesHtml += `
-      <div style="background: #f8f9fa; border-left: 4px solid #00386C; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
-        <h3 style="color: #00386C; margin: 0 0 10px 0; font-size: 18px;">${firstName}</h3>
-        <ul style="margin: 0; padding-left: 20px;">
+      <div style="background: #f8f9fa !important; border-left: 4px solid #00386C; padding: 15px; margin-bottom: 15px; border-radius: 5px;">
+        <h3 style="color: #00386C !important; margin: 0 0 10px 0; font-size: 18px;">${firstName}</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #333 !important;">
     `;
     
     activities.forEach(activity => {
@@ -743,12 +761,12 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
         hour12: true,
         timeZone: 'America/Chicago' // CST timezone
       });
-      activitiesHtml += `<li style="margin: 5px 0;">${activity.activity} - ${activity.duration_min} mins (${time})</li>`;
+      activitiesHtml += `<li style="margin: 5px 0; color: #333 !important;">${activity.activity} - ${activity.duration_min} mins (${time})</li>`;
     });
     
     activitiesHtml += `
         </ul>
-        <p style="margin: 10px 0 0 0; font-weight: bold; color: #FFC333;">Total in last 24 hours: ${todayTotals[member]} mins</p>
+        <p style="margin: 10px 0 0 0; font-weight: bold; color: #FFC333 !important;">Total in last 24 hours: ${todayTotals[member]} mins</p>
       </div>
     `;
   });
@@ -759,10 +777,10 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
     const firstName = member.member_name.split(' ')[0];
     const percentage = ((parseInt(member.total_minutes) / totalMinutes) * 100).toFixed(1);
     standingsHtml += `
-      <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd;">${firstName}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; font-weight: bold; color: #00386C;">${member.total_minutes} mins</td>
-        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #666;">${percentage}%</td>
+      <tr style="background: white !important;">
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #333 !important;">${firstName}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; font-weight: bold; color: #00386C !important;">${member.total_minutes} mins</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; color: #666 !important;">${percentage}%</td>
       </tr>
     `;
   });
@@ -819,70 +837,78 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    :root { color-scheme: light only; }
+  </style>
 </head>
-<body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-  <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+<body style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5 !important; color-scheme: light;">
+  <div style="max-width: 600px; margin: 0 auto; background: white !important; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
     
     <!-- Header -->
-    <div style="background: linear-gradient(135deg, #00386C 0%, #1172DE 100%); color: white; padding: 30px 20px; text-align: center;">
-      <h1 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 800;">The Excel-erators</h1>
-      <p style="margin: 0; font-size: 16px; opacity: 0.9;">Fittober 2025 Daily Update</p>
-      <p style="margin: 10px 0 0 0; font-size: 14px; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 15px; border-radius: 20px;">
+    <div style="background: linear-gradient(135deg, #00386C 0%, #1172DE 100%) !important; color: white !important; padding: 30px 20px; text-align: center;">
+      <h1 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 800; color: white !important;">The Excel-erators</h1>
+      <p style="margin: 0; font-size: 16px; opacity: 0.9; color: white !important;">Fittober 2025 Daily Update</p>
+      <p style="margin: 10px 0 0 0; font-size: 14px; background: rgba(255,255,255,0.2) !important; display: inline-block; padding: 5px 15px; border-radius: 20px; color: white !important;">
         ⏰ ${daysRemaining} days remaining
       </p>
     </div>
 
     <!-- Dashboard Chart -->
-    <div style="padding: 30px 20px; text-align: center; background: #fafafa;">
-      <h2 style="color: #00386C; margin: 0 0 20px 0;">📊 Team Progress</h2>
+    <div style="padding: 30px 20px; text-align: center; background: #fafafa !important;">
+      <h2 style="color: #00386C !important; margin: 0 0 10px 0;">📊 Team Progress</h2>
+      <p style="color: #00386C !important; font-size: 18px; font-weight: bold; margin: 0 0 20px 0; background: #FFC333 !important; padding: 10px; border-radius: 8px; display: inline-block;">
+        🔥 Last 24 Hours: ${last24HoursTotal} minutes
+      </p>
       <img src="${chartUrl}" alt="Team Activity Chart" style="max-width: 100%; height: auto; border-radius: 10px;" />
       <p style="margin: 15px 0 0 0;">
-        <a href="https://pushpullleg.github.io/fitness-tracker/" style="display: inline-block; background: #FFC333; color: #00386C; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+        <a href="https://pushpullleg.github.io/fitness-tracker/" style="display: inline-block; background: #FFC333 !important; color: #00386C !important; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
           View Live Dashboard →
         </a>
       </p>
     </div>
 
     <!-- Today's Activities -->
-    <div style="padding: 30px 20px;">
-      <h2 style="color: #00386C; margin: 0 0 5px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
+    <div style="padding: 30px 20px; background: white !important;">
+      <h2 style="color: #00386C !important; margin: 0 0 5px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
         Today's Activities
       </h2>
-      <p style="color: #666; margin: 5px 0 20px 0; font-size: 14px;">(${todayActivities.length} total)</p>
-      ${activitiesHtml || '<p style="color: #666; text-align: center; padding: 20px;">No activities logged today yet. Get moving!</p>'}
+      <p style="color: #666 !important; margin: 5px 0 20px 0; font-size: 14px;">(${todayActivities.length} total)</p>
+      ${activitiesHtml || '<p style="color: #666 !important; text-align: center; padding: 20px;">No activities logged today yet. Get moving!</p>'}
     </div>
 
     <!-- Team Standings -->
-    <div style="padding: 0 20px 30px 20px;">
-      <h2 style="color: #00386C; margin: 0 0 20px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
+    <div style="padding: 0 20px 30px 20px; background: white !important;">
+      <h2 style="color: #00386C !important; margin: 0 0 20px 0; border-bottom: 3px solid #FFC333; padding-bottom: 10px;">
         Individual Contribution
       </h2>
-      <table style="width: 100%; border-collapse: collapse; background: white;">
+      <table style="width: 100%; border-collapse: collapse; background: white !important;">
         <thead>
-          <tr style="background: #00386C; color: white;">
-            <th style="padding: 12px; text-align: left;">Member</th>
-            <th style="padding: 12px; text-align: right;">Total Minutes</th>
-            <th style="padding: 12px; text-align: right;">% of Team</th>
+          <tr style="background: #00386C !important; color: white !important;">
+            <th style="padding: 12px; text-align: left; color: white !important;">Member</th>
+            <th style="padding: 12px; text-align: right; color: white !important;">Total Minutes</th>
+            <th style="padding: 12px; text-align: right; color: white !important;">% of Team</th>
           </tr>
         </thead>
         <tbody>
           ${standingsHtml}
         </tbody>
         <tfoot>
-          <tr style="background: #FFC333; font-weight: bold;">
-            <td style="padding: 12px;">Team Total</td>
-            <td style="padding: 12px; text-align: right;" colspan="2">${totalMinutes} minutes</td>
+          <tr style="background: #FFC333 !important; font-weight: bold; color: #00386C !important;">
+            <td style="padding: 12px; color: #00386C !important;">Team Total</td>
+            <td style="padding: 12px; text-align: right; color: #00386C !important;" colspan="2">${totalMinutes} minutes</td>
           </tr>
         </tfoot>
       </table>
     </div>
 
     <!-- Footer -->
-    <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #ddd;">
-      <p style="margin: 0; color: #666; font-size: 14px;">
+    <div style="background: #f8f9fa !important; padding: 20px; text-align: center; border-top: 1px solid #ddd;">
+      <p style="margin: 0; color: #666 !important; font-size: 14px;">
         Keep crushing it, Excel-erators! 💪
       </p>
-      <p style="margin: 10px 0 0 0; color: #999; font-size: 12px;">
+      <p style="margin: 10px 0 0 0; color: #999 !important; font-size: 12px;">
         You're receiving this because you're part of The Excel-erators team.<br>
         Challenge ends October 31, 2025
       </p>
