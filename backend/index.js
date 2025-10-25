@@ -67,6 +67,9 @@ const GIST_URLS = [
   'https://gist.github.com/pushpullleg/5a8d4b337f4e2c5916559b193dc5b1c4'
 ];
 
+// Email digest configuration
+const CELEBRATION_THRESHOLD = 400; // Minutes threshold for celebration emoji (easy to change later)
+
 // ============================================
 // DATA PROCESSING FUNCTIONS
 // ============================================
@@ -785,6 +788,9 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
     `;
   });
 
+  // Determine performance emoji based on 24-hour total
+  const performanceEmoji = last24HoursTotal >= CELEBRATION_THRESHOLD ? '🎉' : '😢';
+
   // Embedded dashboard image (using Chart.js via QuickChart)
   const chartData = teamStandings.map(m => parseInt(m.total_minutes));
   const chartLabels = teamStandings.map(m => m.member_name.split(' ')[0]);
@@ -859,7 +865,7 @@ function generateDigestEmail(todayActivities, teamStandings, totalMinutes, daysR
     <div style="padding: 30px 20px; text-align: center; background: #fafafa !important;">
       <h2 style="color: #00386C !important; margin: 0 0 10px 0;">📊 Team Progress</h2>
       <p style="color: #00386C !important; font-size: 18px; font-weight: bold; margin: 0 0 20px 0; background: #FFC333 !important; padding: 10px; border-radius: 8px; display: inline-block;">
-        🔥 Last 24 Hours: ${last24HoursTotal} minutes
+        Last 24 hrs: ${last24HoursTotal} min ${performanceEmoji}
       </p>
       <img src="${chartUrl}" alt="Team Activity Chart" style="max-width: 100%; height: auto; border-radius: 10px;" />
       <p style="margin: 15px 0 0 0;">
